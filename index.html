@@ -6,8 +6,7 @@
 
 <!-- ═══ БЕЗОПАСНОСТЬ ═══ -->
 <!-- Content Security Policy: разрешает только проверенные источники -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';">
-<!-- Запрет встраивания сайта в iframe (защита от clickjacking) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';"><!-- Запрет встраивания сайта в iframe (защита от clickjacking) -->
 <meta http-equiv="X-Frame-Options" content="DENY">
 <!-- Запрет автоматического определения типов файлов -->
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -25,9 +24,13 @@
 <meta name="description" content="Selenia — космический оракул. Расклады Таро и Ленорман, карта дня с астрологическим контекстом. Послание звёзд для вашего пути.">
 <meta name="rating" content="adult">
 <title>Selenia · Космический Оракул</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<!-- Шрифты загружаются асинхронно. Если Google Fonts недоступен (например, в РФ без VPN),
+     сайт всё равно работает с системными шрифтами — Garamond, Times, serif. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600;700&family=Italiana&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600;700&family=Italiana&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600;700&family=Italiana&display=swap"></noscript>
 <style>
   :root {
     --void: #000000;
@@ -43,7 +46,7 @@
 
   html, body {
     min-height: 100vh;
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     color: var(--pearl);
     overflow-x: hidden;
     background: transparent;
@@ -390,7 +393,7 @@
   }
 
   h1 {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: clamp(56px, 10vw, 110px);
     font-weight: 400;
     letter-spacing: 0.18em;
@@ -403,7 +406,7 @@
   }
 
   .subtitle {
-    font-family: 'Cinzel', serif;
+    font-family: 'Cinzel', 'Trajan Pro', 'Optima', 'Palatino', serif;
     font-size: 14px;
     letter-spacing: 0.55em;
     color: var(--silver);
@@ -431,7 +434,7 @@
   }
 
   .header-quote {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-style: italic;
     color: var(--silver);
     font-size: 20px;
@@ -505,7 +508,7 @@
   .daily-glyph { color: #f4d976; }
 
   .system-name {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: 28px;
     color: var(--gold-bright);
     letter-spacing: 0.12em;
@@ -513,7 +516,7 @@
   }
 
   .system-desc {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-style: italic;
     font-size: 17px;
     color: var(--silver);
@@ -525,7 +528,7 @@
     background: transparent;
     border: none;
     color: var(--silver);
-    font-family: 'Cinzel', serif;
+    font-family: 'Cinzel', 'Trajan Pro', 'Optima', 'Palatino', serif;
     font-size: 12px;
     letter-spacing: 0.2em;
     cursor: pointer;
@@ -544,7 +547,7 @@
   }
 
   .section-title {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: clamp(28px, 4vw, 38px);
     color: var(--pearl);
     margin-bottom: 12px;
@@ -553,7 +556,7 @@
   }
 
   .section-subtitle {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-style: italic;
     font-size: 18px;
     color: var(--silver);
@@ -615,7 +618,7 @@
   }
 
   .spread-name {
-    font-family: 'Cinzel', serif;
+    font-family: 'Cinzel', 'Trajan Pro', 'Optima', 'Palatino', serif;
     font-size: 18px;
     font-weight: 500;
     color: var(--gold-bright);
@@ -652,7 +655,7 @@
   }
 
   .reading-title {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: clamp(32px, 5vw, 48px);
     color: var(--gold-bright);
     margin-bottom: 8px;
@@ -661,7 +664,7 @@
   }
 
   .reading-subtitle {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-style: italic;
     font-size: 18px;
     color: var(--silver);
@@ -687,7 +690,7 @@
   }
 
   .card-position {
-    font-family: 'Cinzel', serif;
+    font-family: 'Cinzel', 'Trajan Pro', 'Optima', 'Palatino', serif;
     font-size: 11px;
     letter-spacing: 0.25em;
     color: var(--gold);
@@ -875,7 +878,7 @@
   }
 
   .card-number {
-    font-family: 'Cinzel', serif;
+    font-family: 'Cinzel', 'Trajan Pro', 'Optima', 'Palatino', serif;
     font-size: 10px;
     letter-spacing: 0.25em;
     color: var(--gold-bright);
@@ -892,7 +895,7 @@
   }
 
   .card-name {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: 14px;
     text-align: center;
     color: var(--gold-bright);
@@ -996,7 +999,7 @@
   .astro-row:last-child { border-bottom: none; }
 
   .astro-label {
-    font-family: 'Cinzel', serif;
+    font-family: 'Cinzel', 'Trajan Pro', 'Optima', 'Palatino', serif;
     font-size: 11px;
     letter-spacing: 0.2em;
     color: var(--silver);
@@ -1005,7 +1008,7 @@
   }
 
   .astro-value {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: 18px;
     color: var(--gold-bright);
     letter-spacing: 0.05em;
@@ -1024,7 +1027,7 @@
   .scroll-section:last-child { margin-bottom: 0; }
 
   .scroll-section-title {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: 26px;
     color: var(--gold-bright);
     margin-bottom: 16px;
@@ -1042,7 +1045,7 @@
   }
 
   .scroll-section-title-center {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: 30px;
     color: var(--gold-bright);
     margin-bottom: 8px;
@@ -1060,7 +1063,7 @@
   }
 
   .scroll-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-size: 18px;
     line-height: 1.85;
     color: var(--pearl);
@@ -1082,7 +1085,7 @@
   }
 
   .card-mark {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     color: var(--gold-bright);
     font-style: normal;
     font-weight: 500;
@@ -1096,7 +1099,7 @@
   }
 
   .conclusion-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-size: 21px;
     line-height: 1.7;
     color: var(--pearl);
@@ -1121,7 +1124,7 @@
   }
 
   .btn {
-    font-family: 'Cinzel', serif;
+    font-family: 'Cinzel', 'Trajan Pro', 'Optima', 'Palatino', serif;
     font-size: 13px;
     letter-spacing: 0.25em;
     text-transform: uppercase;
@@ -1193,7 +1196,7 @@
   footer {
     text-align: center;
     padding: 60px 20px 40px;
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-style: italic;
     color: var(--silver);
     opacity: 0.7;
@@ -1516,7 +1519,7 @@
   }
 
   .age-gate-title {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: 32px;
     color: var(--gold-bright);
     margin-bottom: 16px;
@@ -1524,7 +1527,7 @@
   }
 
   .age-gate-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-size: 17px;
     line-height: 1.7;
     color: var(--pearl);
@@ -1619,7 +1622,7 @@
   .cookies-banner.visible { transform: translateY(0); }
 
   .cookies-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-size: 15px;
     color: var(--pearl);
     line-height: 1.5;
@@ -1695,7 +1698,7 @@
   .legal-close:hover { opacity: 1; color: var(--gold-bright); }
 
   .legal-title {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: 28px;
     color: var(--gold-bright);
     margin-bottom: 24px;
@@ -1704,7 +1707,7 @@
   }
 
   .legal-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Cormorant Garamond', 'Garamond', 'Georgia', 'Times New Roman', serif;
     font-size: 16px;
     line-height: 1.75;
     color: var(--pearl);
@@ -1712,7 +1715,7 @@
   }
 
   .legal-text h3 {
-    font-family: 'Italiana', serif;
+    font-family: 'Italiana', 'Didot', 'Bodoni MT', 'Georgia', serif;
     font-size: 20px;
     color: var(--gold-bright);
     margin: 24px 0 12px;
@@ -1837,7 +1840,7 @@
       <p>Все технические данные хранятся исключительно на устройстве пользователя. Никакие данные не передаются на серверы Selenia или третьим сторонам.</p>
 
       <h3>4. Сторонние сервисы</h3>
-      <p>Сайт загружает шрифты с сервиса Google Fonts (fonts.googleapis.com и fonts.gstatic.com). При загрузке шрифтов Google может получать технические данные о вашем браузере. Подробнее: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
+      <p>Сайт может попытаться загрузить шрифты с сервиса Google Fonts (fonts.googleapis.com и fonts.gstatic.com) для улучшения визуального оформления. Загрузка шрифтов является <strong>необязательной</strong> — если шрифты не загрузятся (например, при отсутствии доступа к серверам Google), сайт продолжит работать с системными шрифтами. При загрузке шрифтов Google может получать технические данные о вашем браузере. Подробнее: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
 
       <h3>5. Права пользователя</h3>
       <p>Вы можете в любой момент очистить технические cookies через настройки браузера. Это сбросит все сохранённые настройки сайта.</p>
