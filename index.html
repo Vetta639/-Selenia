@@ -85,7 +85,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 220vmax;
+    width: 150vmax;
     height: 60vmax;
     transform: translate(-50%, -50%) rotate(-25deg);
     background:
@@ -111,7 +111,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 240vmax;
+    width: 160vmax;
     height: 35vmax;
     transform: translate(-50%, -50%) rotate(-25deg);
     background:
@@ -129,7 +129,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 280vmax;
+    width: 180vmax;
     height: 75vmax;
     transform: translate(-50%, -50%) rotate(-25deg);
     background:
@@ -147,7 +147,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 220vmax;
+    width: 150vmax;
     height: 12vmax;
     transform: translate(-50%, -50%) rotate(-25deg);
     background:
@@ -1735,14 +1735,15 @@
 <body>
 
 <!-- ═══ ПОДТВЕРЖДЕНИЕ ВОЗРАСТА (18+) ═══ -->
-<div class="age-gate" id="age-gate" role="dialog" aria-modal="true" aria-labelledby="age-gate-title">
+<!-- Display: flex прописан inline, чтобы окно работало даже если JS не загрузится -->
+<div class="age-gate" id="age-gate" role="dialog" aria-modal="true" aria-labelledby="age-gate-title" style="display: flex;">
   <div class="age-gate-content">
-    <svg class="age-gate-sigil" viewBox="0 0 100 100">
+    <svg class="age-gate-sigil" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="1"/>
       <polygon points="50,15 58,42 85,42 63,58 71,85 50,68 29,85 37,58 15,42 42,42" fill="none" stroke="currentColor" stroke-width="1.2"/>
       <circle cx="50" cy="50" r="3" fill="currentColor"/>
     </svg>
-    <div class="age-gate-title">Selenia · 18+</div>
+    <div class="age-gate-title" id="age-gate-title">Selenia · 18+</div>
     <p class="age-gate-text">
       Этот сайт содержит материалы оккультного и эзотерического характера, предназначенные для лиц <strong>старше 18 лет</strong>.
     </p>
@@ -1750,8 +1751,8 @@
       Подтверждая вход, вы соглашаетесь с тем, что вам исполнилось 18 лет, и вы понимаете развлекательный характер сайта.
     </p>
     <div class="age-gate-buttons">
-      <button class="btn btn-primary" id="age-confirm">Мне есть 18, войти</button>
-      <button class="btn btn-secondary" id="age-decline">Покинуть сайт</button>
+      <button type="button" class="btn btn-primary" id="age-confirm">Мне есть 18, войти</button>
+      <button type="button" class="btn btn-secondary" id="age-decline">Покинуть сайт</button>
     </div>
   </div>
 </div>
@@ -3377,32 +3378,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // ОПРЕДЕЛЕНИЕ СЛАБЫХ УСТРОЙСТВ И ANDROID
   // ═══════════════════════════════════════════════════════
   function detectLowPerformance() {
-    const ua = navigator.userAgent || '';
-    const isAndroid = /Android/i.test(ua);
-
-    // Проверяем количество ядер процессора (если меньше 4 — устройство слабое)
-    const lowCores = (navigator.hardwareConcurrency || 4) < 4;
-
-    // Проверяем объём памяти (если меньше 4 ГБ — устройство слабое)
-    const lowMemory = (navigator.deviceMemory || 4) < 4;
-
-    // Проверяем поддержку backdrop-filter
-    const noBackdrop = !CSS.supports('backdrop-filter', 'blur(10px)') &&
-                       !CSS.supports('-webkit-backdrop-filter', 'blur(10px)');
-
-    // Проверяем медленную сеть
-    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    const slowConnection = conn && (conn.saveData || /2g|slow/.test(conn.effectiveType || ''));
-
-    // Включаем режим оптимизации, если:
-    // - Android (всегда, для надёжности на слабых устройствах)
-    // - Слабые характеристики
-    // - Нет поддержки backdrop-filter
-    // - Медленная сеть
-    return isAndroid || lowCores || lowMemory || noBackdrop || slowConnection;
+    try {
+      const ua = navigator.userAgent || '';
+      const isAndroid = /Android/i.test(ua);
+      const lowCores = (navigator.hardwareConcurrency || 4) < 4;
+      const lowMemory = (navigator.deviceMemory || 4) < 4;
+      let noBackdrop = false;
+      try {
+        noBackdrop = !CSS.supports('backdrop-filter', 'blur(10px)') &&
+                     !CSS.supports('-webkit-backdrop-filter', 'blur(10px)');
+      } catch (e) {
+        noBackdrop = true;
+      }
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const slowConnection = conn && (conn.saveData || /2g|slow/.test(conn.effectiveType || ''));
+      return isAndroid || lowCores || lowMemory || noBackdrop || slowConnection;
+    } catch (e) {
+      return true; // если что-то упало, лучше включить low-perf чем не включить
+    }
   }
 
-  if (detectLowPerformance()) {
+  try {
+    if (detectLowPerformance()) {
+      document.documentElement.classList.add('low-perf');
+    }
+  } catch (e) {
     document.documentElement.classList.add('low-perf');
   }
 
@@ -3416,85 +3416,130 @@ document.addEventListener('DOMContentLoaded', () => {
   const termsModal = document.getElementById('terms-modal');
 
   // Безопасное чтение/запись localStorage с try/catch
+  // Важно для iOS Safari в приватном режиме и Android < 4.4
   function getStorage(key) {
-    try { return localStorage.getItem(key); } catch (e) { return null; }
+    try {
+      if (typeof localStorage === 'undefined') return null;
+      return localStorage.getItem(key);
+    } catch (e) { return null; }
   }
   function setStorage(key, value) {
-    try { localStorage.setItem(key, value); } catch (e) { /* приватный режим — игнорируем */ }
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(key, value);
+    } catch (e) { /* приватный режим — игнорируем */ }
   }
 
   // Глобальная защита от ошибок — чтобы сайт не "зависал"
   window.addEventListener('error', function(e) {
     console.warn('Selenia: ошибка перехвачена', e.message);
-    // Не блокируем сайт, просто логируем
     return true;
   });
 
   // Подтверждение возраста — показываем, если ещё не подтверждён
-  if (getStorage('selenia-age-confirmed') === 'true') {
-    ageGate.classList.add('hidden');
-  }
-
-  document.getElementById('age-confirm').addEventListener('click', () => {
-    setStorage('selenia-age-confirmed', 'true');
-    ageGate.classList.add('hidden');
-    // Показываем баннер cookies, если согласие ещё не дано
-    if (getStorage('selenia-cookies-accepted') !== 'true') {
-      setTimeout(() => cookiesBanner.classList.add('visible'), 600);
+  if (ageGate) {
+    if (getStorage('selenia-age-confirmed') === 'true') {
+      ageGate.style.display = 'none';
+      ageGate.classList.add('hidden');
     }
-  });
 
-  document.getElementById('age-decline').addEventListener('click', () => {
-    // Безопасный редирект на нейтральный сайт
-    window.location.href = 'https://www.google.com';
-  });
+    const confirmBtn = document.getElementById('age-confirm');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', function() {
+        setStorage('selenia-age-confirmed', 'true');
+        ageGate.style.display = 'none';
+        ageGate.classList.add('hidden');
+        // Показываем баннер cookies, если согласие ещё не дано
+        if (cookiesBanner && getStorage('selenia-cookies-accepted') !== 'true') {
+          setTimeout(function() {
+            cookiesBanner.classList.add('visible');
+          }, 600);
+        }
+      });
+    }
+
+    const declineBtn = document.getElementById('age-decline');
+    if (declineBtn) {
+      declineBtn.addEventListener('click', function() {
+        try {
+          window.location.href = 'https://www.google.com';
+        } catch (e) {
+          ageGate.innerHTML = '<div class="age-gate-content"><div class="age-gate-title">До свидания</div><p class="age-gate-text">Закройте, пожалуйста, эту страницу.</p></div>';
+        }
+      });
+    }
+  }
 
   // Cookies banner — показываем, если согласие ещё не дано (и возраст подтверждён)
-  if (getStorage('selenia-age-confirmed') === 'true' && getStorage('selenia-cookies-accepted') !== 'true') {
-    setTimeout(() => cookiesBanner.classList.add('visible'), 800);
+  if (cookiesBanner && getStorage('selenia-age-confirmed') === 'true' && getStorage('selenia-cookies-accepted') !== 'true') {
+    setTimeout(function() {
+      cookiesBanner.classList.add('visible');
+    }, 800);
   }
 
-  document.getElementById('cookies-accept').addEventListener('click', () => {
-    setStorage('selenia-cookies-accepted', 'true');
-    cookiesBanner.classList.remove('visible');
-  });
+  const cookiesAcceptBtn = document.getElementById('cookies-accept');
+  if (cookiesAcceptBtn) {
+    cookiesAcceptBtn.addEventListener('click', function() {
+      setStorage('selenia-cookies-accepted', 'true');
+      if (cookiesBanner) cookiesBanner.classList.remove('visible');
+    });
+  }
 
   // Открытие политики конфиденциальности
   function openPrivacy() {
-    privacyModal.classList.add('visible');
-    document.body.style.overflow = 'hidden';
+    if (privacyModal) {
+      privacyModal.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
   }
   function closePrivacy() {
-    privacyModal.classList.remove('visible');
-    document.body.style.overflow = '';
+    if (privacyModal) {
+      privacyModal.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
   }
 
-  document.getElementById('open-privacy').addEventListener('click', openPrivacy);
-  document.getElementById('footer-privacy').addEventListener('click', openPrivacy);
-  document.getElementById('close-privacy').addEventListener('click', closePrivacy);
-  privacyModal.addEventListener('click', (e) => {
-    if (e.target === privacyModal) closePrivacy();
-  });
+  const openPrivacyLink = document.getElementById('open-privacy');
+  const footerPrivacyLink = document.getElementById('footer-privacy');
+  const closePrivacyBtn = document.getElementById('close-privacy');
+
+  if (openPrivacyLink) openPrivacyLink.addEventListener('click', openPrivacy);
+  if (footerPrivacyLink) footerPrivacyLink.addEventListener('click', openPrivacy);
+  if (closePrivacyBtn) closePrivacyBtn.addEventListener('click', closePrivacy);
+  if (privacyModal) {
+    privacyModal.addEventListener('click', function(e) {
+      if (e.target === privacyModal) closePrivacy();
+    });
+  }
 
   // Открытие пользовательского соглашения
   function openTerms() {
-    termsModal.classList.add('visible');
-    document.body.style.overflow = 'hidden';
+    if (termsModal) {
+      termsModal.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
   }
   function closeTerms() {
-    termsModal.classList.remove('visible');
-    document.body.style.overflow = '';
+    if (termsModal) {
+      termsModal.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
   }
 
-  document.getElementById('footer-terms').addEventListener('click', openTerms);
-  document.getElementById('close-terms').addEventListener('click', closeTerms);
-  termsModal.addEventListener('click', (e) => {
-    if (e.target === termsModal) closeTerms();
-  });
+  const footerTermsLink = document.getElementById('footer-terms');
+  const closeTermsBtn = document.getElementById('close-terms');
+
+  if (footerTermsLink) footerTermsLink.addEventListener('click', openTerms);
+  if (closeTermsBtn) closeTermsBtn.addEventListener('click', closeTerms);
+  if (termsModal) {
+    termsModal.addEventListener('click', function(e) {
+      if (e.target === termsModal) closeTerms();
+    });
+  }
 
   // Закрытие модалок по Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
       closePrivacy();
       closeTerms();
     }
@@ -3513,16 +3558,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Кнопки возврата
-  document.getElementById('back-to-systems').addEventListener('click', showSystemSelection);
-  document.getElementById('back-from-daily').addEventListener('click', showSystemSelection);
+  const backToSystemsBtn = document.getElementById('back-to-systems');
+  const backFromDailyBtn = document.getElementById('back-from-daily');
+  if (backToSystemsBtn) backToSystemsBtn.addEventListener('click', showSystemSelection);
+  if (backFromDailyBtn) backFromDailyBtn.addEventListener('click', showSystemSelection);
 
   // Кнопки расклада
-  document.getElementById('reveal-btn').addEventListener('click', revealCards);
-  document.getElementById('new-reading-btn').addEventListener('click', newReading);
-  document.getElementById('back-btn').addEventListener('click', backToSelection);
+  const revealBtn = document.getElementById('reveal-btn');
+  const newReadingBtn = document.getElementById('new-reading-btn');
+  const backBtn = document.getElementById('back-btn');
+  if (revealBtn) revealBtn.addEventListener('click', revealCards);
+  if (newReadingBtn) newReadingBtn.addEventListener('click', newReading);
+  if (backBtn) backBtn.addEventListener('click', backToSelection);
 
   // Кнопка карты дня
-  document.getElementById('reveal-daily-btn').addEventListener('click', revealDailyCard);
+  const revealDailyBtn = document.getElementById('reveal-daily-btn');
+  if (revealDailyBtn) revealDailyBtn.addEventListener('click', revealDailyCard);
 });
 </script>
 </body>
