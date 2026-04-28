@@ -1,0 +1,3390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+<!-- ═══ БЕЗОПАСНОСТЬ ═══ -->
+<!-- Content Security Policy: разрешает только проверенные источники -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';">
+<!-- Запрет встраивания сайта в iframe (защита от clickjacking) -->
+<meta http-equiv="X-Frame-Options" content="DENY">
+<!-- Запрет автоматического определения типов файлов -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<!-- Защита от XSS-атак на уровне браузера -->
+<meta http-equiv="X-XSS-Protection" content="1; mode=block">
+<!-- Минимальная утечка реферера -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Запрет доступа к камере, микрофону, геолокации и пр. -->
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Selenia">
+<meta name="description" content="Selenia — космический оракул. Расклады Таро и Ленорман, карта дня с астрологическим контекстом. Послание звёзд для вашего пути.">
+<meta name="rating" content="adult">
+<title>Selenia · Космический Оракул</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600;700&family=Italiana&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #000000;
+    --gold: #d4af37;
+    --gold-bright: #f4d976;
+    --gold-soft: #b8943f;
+    --silver: #c8b8d8;
+    --pearl: #f0e6ff;
+    --ink: #1a0a2e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    min-height: 100vh;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--pearl);
+    overflow-x: hidden;
+    background: transparent;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: #000000;
+    z-index: 0;
+  }
+
+  /* ═══ ФОН — МЛЕЧНЫЙ ПУТЬ (SVG, встроенный) ═══ */
+  .universe-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: #000000;
+    overflow: hidden;
+  }
+
+  .milky-way-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* ═══════════════════════════════════════
+     РЕАЛИСТИЧНЫЙ МЛЕЧНЫЙ ПУТЬ
+     Приглушённые тона как на астрофото
+     ═══════════════════════════════════════ */
+
+  /* Главная полоса Млечного Пути — реалистичная */
+  .galaxy-band {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 220vmax;
+    height: 60vmax;
+    transform: translate(-50%, -50%) rotate(-25deg);
+    background:
+      /* Ядро — приглушённое тёплое свечение */
+      radial-gradient(ellipse 30% 50% at 50% 50%,
+        rgba(220, 195, 150, 0.45) 0%,
+        rgba(200, 170, 130, 0.35) 12%,
+        rgba(170, 140, 130, 0.28) 25%,
+        rgba(120, 100, 130, 0.18) 45%,
+        rgba(60, 50, 90, 0.1) 65%,
+        transparent 85%),
+      /* Расширенная мягкая полоса */
+      radial-gradient(ellipse 90% 32% at 50% 50%,
+        rgba(180, 160, 140, 0.25) 0%,
+        rgba(140, 120, 140, 0.18) 30%,
+        rgba(80, 70, 110, 0.12) 60%,
+        transparent 90%);
+    filter: blur(8px);
+  }
+
+  /* Дополнительная мягкая полоса */
+  .galaxy-band-2 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 240vmax;
+    height: 35vmax;
+    transform: translate(-50%, -50%) rotate(-25deg);
+    background:
+      linear-gradient(0deg,
+        transparent 0%,
+        rgba(160, 140, 120, 0.08) 30%,
+        rgba(180, 160, 140, 0.18) 50%,
+        rgba(160, 140, 120, 0.08) 70%,
+        transparent 100%);
+    filter: blur(25px);
+  }
+
+  /* Самая широкая мягкая дымка */
+  .galaxy-band-3 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 280vmax;
+    height: 75vmax;
+    transform: translate(-50%, -50%) rotate(-25deg);
+    background:
+      linear-gradient(0deg,
+        transparent 0%,
+        rgba(80, 70, 110, 0.08) 30%,
+        rgba(110, 95, 130, 0.14) 50%,
+        rgba(80, 70, 110, 0.08) 70%,
+        transparent 100%);
+    filter: blur(50px);
+  }
+
+  /* Тёмные пылевые облака — характерная черта Млечного Пути */
+  .dust-lane {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 220vmax;
+    height: 12vmax;
+    transform: translate(-50%, -50%) rotate(-25deg);
+    background:
+      linear-gradient(0deg,
+        transparent 0%,
+        rgba(5, 2, 12, 0.55) 25%,
+        rgba(2, 0, 8, 0.8) 50%,
+        rgba(5, 2, 12, 0.55) 75%,
+        transparent 100%);
+    filter: blur(12px);
+  }
+
+  /* Дополнительные пылевые пятна для реализма */
+  .dust-patch-1 {
+    position: absolute;
+    top: 45%;
+    left: 30%;
+    width: 400px;
+    height: 200px;
+    background: radial-gradient(ellipse at center,
+      rgba(0, 0, 5, 0.5) 0%,
+      rgba(0, 0, 5, 0.3) 40%,
+      transparent 75%);
+    transform: rotate(-25deg);
+    filter: blur(30px);
+  }
+
+  .dust-patch-2 {
+    position: absolute;
+    top: 55%;
+    right: 25%;
+    width: 350px;
+    height: 180px;
+    background: radial-gradient(ellipse at center,
+      rgba(0, 0, 5, 0.45) 0%,
+      rgba(0, 0, 5, 0.25) 40%,
+      transparent 75%);
+    transform: rotate(-25deg);
+    filter: blur(30px);
+  }
+
+  /* Туманности — приглушённые, как на реальных снимках */
+  .nebula-cloud-1 {
+    position: absolute;
+    top: 28%;
+    left: 18%;
+    width: 600px;
+    height: 420px;
+    background:
+      radial-gradient(ellipse at center,
+        rgba(140, 60, 90, 0.22) 0%,
+        rgba(110, 50, 80, 0.15) 30%,
+        rgba(80, 40, 70, 0.08) 55%,
+        transparent 80%);
+    filter: blur(45px);
+    animation: nebula-pulse 25s ease-in-out infinite alternate;
+  }
+
+  .nebula-cloud-2 {
+    position: absolute;
+    top: 62%;
+    right: 14%;
+    width: 550px;
+    height: 400px;
+    background:
+      radial-gradient(ellipse at center,
+        rgba(60, 90, 130, 0.22) 0%,
+        rgba(50, 70, 110, 0.15) 30%,
+        rgba(50, 50, 90, 0.08) 55%,
+        transparent 80%);
+    filter: blur(45px);
+    animation: nebula-pulse 30s ease-in-out infinite alternate-reverse;
+  }
+
+  .nebula-cloud-3 {
+    position: absolute;
+    bottom: 12%;
+    left: 32%;
+    width: 700px;
+    height: 350px;
+    background:
+      radial-gradient(ellipse at center,
+        rgba(150, 110, 70, 0.18) 0%,
+        rgba(120, 90, 60, 0.12) 30%,
+        rgba(80, 60, 50, 0.06) 55%,
+        transparent 80%);
+    filter: blur(55px);
+    animation: nebula-pulse 35s ease-in-out infinite alternate;
+  }
+
+  @keyframes nebula-pulse {
+    0% { opacity: 0.7; transform: scale(1); }
+    100% { opacity: 0.95; transform: scale(1.05); }
+  }
+
+  /* Затемняющий оверлей — равномерный, чтобы фон был приглушённым */
+  .universe-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 70%, rgba(0,0,0,0.8) 100%);
+    pointer-events: none;
+  }
+
+  /* СОТНИ ЗВЁЗД — несколько слоёв */
+  .stars-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .stars-tiny {
+    background-image:
+      radial-gradient(0.5px 0.5px at 23px 17px, rgba(255,255,255,0.5), transparent),
+      radial-gradient(0.5px 0.5px at 67px 89px, rgba(255,255,255,0.35), transparent),
+      radial-gradient(0.5px 0.5px at 121px 43px, rgba(255,250,240,0.45), transparent),
+      radial-gradient(0.5px 0.5px at 178px 134px, rgba(255,255,255,0.55), transparent),
+      radial-gradient(0.5px 0.5px at 234px 89px, rgba(240,240,255,0.3), transparent),
+      radial-gradient(0.5px 0.5px at 89px 167px, rgba(255,255,255,0.4), transparent),
+      radial-gradient(0.5px 0.5px at 156px 198px, rgba(255,250,240,0.35), transparent),
+      radial-gradient(0.5px 0.5px at 245px 156px, rgba(255,255,255,0.5), transparent),
+      radial-gradient(0.5px 0.5px at 298px 23px, rgba(240,240,255,0.4), transparent),
+      radial-gradient(0.5px 0.5px at 312px 178px, rgba(255,255,255,0.35), transparent);
+    background-size: 350px 220px;
+    opacity: 0.7;
+  }
+
+  .stars-small {
+    background-image:
+      radial-gradient(1px 1px at 45px 67px, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 134px 23px, rgba(255,250,230,0.65), transparent),
+      radial-gradient(1px 1px at 201px 89px, rgba(230,210,180,0.55), transparent),
+      radial-gradient(1px 1px at 78px 134px, rgba(255,255,255,0.55), transparent),
+      radial-gradient(1px 1px at 256px 156px, rgba(255,250,240,0.7), transparent),
+      radial-gradient(1px 1px at 167px 198px, rgba(200,200,230,0.6), transparent),
+      radial-gradient(1px 1px at 312px 67px, rgba(255,255,255,0.65), transparent),
+      radial-gradient(1px 1px at 23px 234px, rgba(240,225,195,0.55), transparent);
+    background-size: 400px 280px;
+    animation: twinkle-slow 8s ease-in-out infinite;
+  }
+
+  .stars-medium {
+    background-image:
+      radial-gradient(1.5px 1.5px at 89px 134px, rgba(255,255,255,0.85), transparent),
+      radial-gradient(1.5px 1.5px at 234px 78px, rgba(230,210,180,0.7), transparent),
+      radial-gradient(1.5px 1.5px at 156px 245px, rgba(255,250,240,0.8), transparent),
+      radial-gradient(1.5px 1.5px at 345px 167px, rgba(190,190,220,0.65), transparent),
+      radial-gradient(1.5px 1.5px at 45px 312px, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1.5px 1.5px at 412px 234px, rgba(230,210,180,0.65), transparent);
+    background-size: 500px 380px;
+    animation: twinkle-medium 5s ease-in-out infinite;
+  }
+
+  .stars-bright {
+    background-image:
+      radial-gradient(2px 2px at 178px 234px, rgba(255,255,255,0.85), transparent),
+      radial-gradient(2px 2px at 345px 89px, rgba(230,210,180,0.8), transparent),
+      radial-gradient(1.5px 1.5px at 67px 312px, rgba(255,250,240,0.85), transparent),
+      radial-gradient(2px 2px at 456px 178px, rgba(255,255,255,0.85), transparent),
+      radial-gradient(1.5px 1.5px at 234px 423px, rgba(230,210,180,0.75), transparent);
+    background-size: 600px 480px;
+    animation: twinkle-bright 4s ease-in-out infinite;
+  }
+
+  @keyframes twinkle-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes twinkle-medium {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @keyframes twinkle-bright {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.2); }
+  }
+
+  /* Падающие звёзды */
+  .shooting-star {
+    position: fixed;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 8px 2px white;
+    z-index: 4;
+    pointer-events: none;
+    animation: shoot 8s linear infinite;
+  }
+
+  .shooting-star::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, white, transparent);
+    transform-origin: left;
+  }
+
+  .shooting-star:nth-child(1) { top: 10%; left: -150px; animation-delay: 0s; }
+  .shooting-star:nth-child(2) { top: 30%; left: -150px; animation-delay: 4s; }
+  .shooting-star:nth-child(3) { top: 60%; left: -150px; animation-delay: 7s; }
+  .shooting-star:nth-child(4) { top: 80%; left: -150px; animation-delay: 11s; }
+
+  @keyframes shoot {
+    0% { transform: translate(0, 0) rotate(20deg); opacity: 0; }
+    10% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translate(120vw, 40vh) rotate(20deg); opacity: 0; }
+  }
+
+  header, main, footer {
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ═══ ЗАГОЛОВОК ═══ */
+  header {
+    text-align: center;
+    padding: 80px 20px 40px;
+  }
+
+  .logo-sigil {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 24px;
+    animation: rotate-slow 60s linear infinite;
+    filter: drop-shadow(0 0 20px rgba(244, 217, 118, 0.6));
+  }
+
+  @keyframes rotate-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  h1 {
+    font-family: 'Italiana', serif;
+    font-size: clamp(56px, 10vw, 110px);
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    margin-bottom: 16px;
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 50%, var(--gold-soft) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 40px rgba(244, 217, 118, 0.5));
+  }
+
+  .subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 0.55em;
+    color: var(--silver);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 24px auto;
+    max-width: 320px;
+    color: var(--gold);
+    opacity: 0.8;
+  }
+
+  .ornament::before, .ornament::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .header-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--silver);
+    font-size: 20px;
+    max-width: 620px;
+    margin: 0 auto;
+    line-height: 1.5;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.9);
+  }
+
+  /* ═══ ВЫБОР РАСКЛАДА ═══ */
+  /* ВЫБОР СИСТЕМЫ ГАДАНИЯ */
+  .system-selection {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .systems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+    margin-top: 40px;
+  }
+
+  .system-card {
+    position: relative;
+    padding: 50px 32px;
+    background: linear-gradient(135deg, rgba(15, 5, 30, 0.92) 0%, rgba(5, 0, 20, 0.95) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow: hidden;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+
+  .system-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(244, 217, 118, 0.2), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .system-card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(244, 217, 118, 0.7);
+    box-shadow: 0 25px 60px rgba(110, 63, 181, 0.35), 0 0 70px rgba(244, 217, 118, 0.2);
+  }
+
+  .system-card:hover::before { opacity: 1; }
+
+  .system-glyph {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    color: var(--gold-bright);
+    filter: drop-shadow(0 0 20px rgba(244, 217, 118, 0.5));
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .system-glyph svg { width: 100%; height: 100%; }
+
+  .system-card:hover .system-glyph { transform: scale(1.15) rotate(5deg); }
+
+  .lenormand-glyph { color: #f4c1d9; }
+  .daily-glyph { color: #f4d976; }
+
+  .system-name {
+    font-family: 'Italiana', serif;
+    font-size: 28px;
+    color: var(--gold-bright);
+    letter-spacing: 0.12em;
+    margin-bottom: 14px;
+  }
+
+  .system-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--silver);
+    line-height: 1.55;
+    opacity: 0.9;
+  }
+
+  .btn-text {
+    background: transparent;
+    border: none;
+    color: var(--silver);
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    margin-bottom: 30px;
+    opacity: 0.75;
+    transition: opacity 0.3s;
+  }
+
+  .btn-text:hover { opacity: 1; color: var(--gold-bright); }
+
+  .spread-selection {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: 'Italiana', serif;
+    font-size: clamp(28px, 4vw, 38px);
+    color: var(--pearl);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.9);
+  }
+
+  .section-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--silver);
+    margin-bottom: 50px;
+    opacity: 0.9;
+    text-shadow: 0 2px 15px rgba(0,0,0,0.9);
+  }
+
+  .spreads-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 60px;
+  }
+
+  .spread-card {
+    position: relative;
+    padding: 36px 28px;
+    background:
+      linear-gradient(135deg, rgba(15, 5, 30, 0.92) 0%, rgba(5, 0, 20, 0.95) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow: hidden;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+
+  .spread-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(244, 217, 118, 0.18), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .spread-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(244, 217, 118, 0.65);
+    box-shadow:
+      0 20px 50px rgba(110, 63, 181, 0.3),
+      0 0 60px rgba(244, 217, 118, 0.18);
+  }
+
+  .spread-card:hover::before { opacity: 1; }
+
+  .spread-icon {
+    font-size: 44px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 15px rgba(244, 217, 118, 0.5));
+    display: inline-block;
+    transition: transform 0.5s;
+  }
+
+  .spread-card:hover .spread-icon {
+    transform: scale(1.15) rotate(-5deg);
+  }
+
+  .spread-name {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--gold-bright);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .spread-desc {
+    font-size: 16px;
+    color: var(--silver);
+    font-style: italic;
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+
+  /* ═══ ОБЛАСТЬ РАСКЛАДА ═══ */
+  .reading-area {
+    display: none;
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .reading-area.active {
+    display: block;
+    animation: fade-in 1s ease-out;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reading-title {
+    font-family: 'Italiana', serif;
+    font-size: clamp(32px, 5vw, 48px);
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.9);
+  }
+
+  .reading-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--silver);
+    margin-bottom: 40px;
+    text-shadow: 0 2px 15px rgba(0,0,0,0.9);
+  }
+
+  /* ═══ КАРТЫ ═══ */
+  .cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin: 50px 0;
+    perspective: 1500px;
+  }
+
+  .card-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .card-position {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.95;
+    text-align: center;
+    max-width: 160px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  }
+
+  .card {
+    width: 160px;
+    height: 270px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: pointer;
+  }
+
+  .card.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-back {
+    background: radial-gradient(ellipse at center, #2d1657 0%, #1a0b3d 60%, #0a0420 100%);
+    border: 2px solid var(--gold);
+    box-shadow:
+      0 0 30px rgba(244, 217, 118, 0.4),
+      inset 0 0 30px rgba(244, 217, 118, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: card-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes card-glow {
+    0%, 100% {
+      box-shadow:
+        0 0 30px rgba(244, 217, 118, 0.4),
+        inset 0 0 30px rgba(244, 217, 118, 0.2);
+    }
+    50% {
+      box-shadow:
+        0 0 50px rgba(244, 217, 118, 0.7),
+        inset 0 0 50px rgba(244, 217, 118, 0.35);
+    }
+  }
+
+  .card-back-pattern {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background:
+      repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(244, 217, 118, 0.05) 10px, rgba(244, 217, 118, 0.05) 11px),
+      repeating-linear-gradient(-45deg, transparent 0, transparent 10px, rgba(244, 217, 118, 0.05) 10px, rgba(244, 217, 118, 0.05) 11px);
+  }
+
+  .card-back-sigil {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px;
+    height: 90px;
+    animation: rotate-slow 30s linear infinite;
+  }
+
+  .card-back-frame {
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(244, 217, 118, 0.5);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  .card-front {
+    transform: rotateY(180deg);
+    background: linear-gradient(180deg, #1a0a2e 0%, #2d1657 100%);
+    border: 2px solid var(--gold);
+    box-shadow:
+      0 0 40px rgba(244, 217, 118, 0.5),
+      inset 0 0 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .card-front.suit-wands { background: linear-gradient(180deg, #2a0e0e 0%, #4a1a1a 100%); }
+  .card-front.suit-cups { background: linear-gradient(180deg, #0a1a2a 0%, #1a3050 100%); }
+  .card-front.suit-swords { background: linear-gradient(180deg, #1a1a2a 0%, #2a2a45 100%); }
+  .card-front.suit-pentacles { background: linear-gradient(180deg, #0e2410 0%, #1a3a20 100%); }
+
+  /* СТИЛЬ ЛЕНОРМАН — НЕЖНЫЙ И РОМАНТИЧНЫЙ */
+  .card.lenormand .card-back {
+    background: radial-gradient(ellipse at center, #3a1a3a 0%, #2a0e2a 60%, #1a081a 100%);
+    border: 2px solid #f4c1d9;
+    box-shadow: 0 0 30px rgba(244, 193, 217, 0.4), inset 0 0 30px rgba(244, 193, 217, 0.2);
+    animation: card-glow-pink 3s ease-in-out infinite;
+  }
+
+  @keyframes card-glow-pink {
+    0%, 100% { box-shadow: 0 0 30px rgba(244, 193, 217, 0.4), inset 0 0 30px rgba(244, 193, 217, 0.2); }
+    50% { box-shadow: 0 0 50px rgba(244, 193, 217, 0.7), inset 0 0 50px rgba(244, 193, 217, 0.35); }
+  }
+
+  .card.lenormand .card-front {
+    background: linear-gradient(180deg, #2a0e2a 0%, #4a1a45 100%);
+    border: 2px solid #f4c1d9;
+    box-shadow: 0 0 40px rgba(244, 193, 217, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .card.lenormand .card-frame {
+    border: 1px solid rgba(244, 193, 217, 0.6);
+    background: radial-gradient(ellipse at center, rgba(200, 100, 150, 0.25) 0%, transparent 70%);
+  }
+
+  .card.lenormand .card-number,
+  .card.lenormand .card-name {
+    color: #f4c1d9;
+  }
+
+  .card.lenormand .card-back-frame {
+    border-color: rgba(244, 193, 217, 0.5);
+  }
+
+  .card.lenormand .card-back-sigil {
+    color: rgba(244, 193, 217, 0.8);
+  }
+
+  .card.lenormand .card-symbol {
+    filter: drop-shadow(0 0 12px rgba(244, 193, 217, 0.7));
+  }
+
+  /* БОЛЬШАЯ КАРТА ДНЯ */
+  .daily-area {
+    display: none;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .daily-area.active { display: block; animation: fade-in 1s ease-out; }
+
+  .daily-card-container {
+    display: flex;
+    justify-content: center;
+    margin: 50px 0;
+    perspective: 1500px;
+  }
+
+  .card.daily {
+    width: 280px;
+    height: 470px;
+  }
+
+  .card.daily .card-symbol { font-size: 100px; }
+  .card.daily .card-name { font-size: 22px; }
+  .card.daily .card-number { font-size: 13px; }
+
+  .card.daily .card-back {
+    background: radial-gradient(ellipse at center, #3a2a1a 0%, #2a1a0a 60%, #1a0a02 100%);
+    border: 3px solid var(--gold-bright);
+    box-shadow: 0 0 50px rgba(244, 217, 118, 0.6), inset 0 0 50px rgba(244, 217, 118, 0.3);
+  }
+
+  .card.daily .card-back-sigil { width: 160px; height: 160px; }
+
+  .card-frame {
+    flex: 1;
+    border: 1px solid rgba(244, 217, 118, 0.6);
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background: radial-gradient(ellipse at center, rgba(110, 63, 181, 0.3) 0%, transparent 70%);
+  }
+
+  .card-number {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--gold-bright);
+    opacity: 0.9;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .card-symbol {
+    font-size: 60px;
+    text-align: center;
+    filter: drop-shadow(0 0 10px rgba(244, 217, 118, 0.6));
+    margin: 4px 0;
+  }
+
+  .card-name {
+    font-family: 'Italiana', serif;
+    font-size: 14px;
+    text-align: center;
+    color: var(--gold-bright);
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    padding: 0 4px;
+  }
+
+  .card:not(.flipped):hover .card-back {
+    transform: scale(1.05);
+    transition: transform 0.4s;
+  }
+
+  /* ═══ СВИТОК С РАСКЛАДОМ ═══ */
+  .reading-scroll {
+    margin-top: 60px;
+    padding: 50px 56px;
+    background:
+      linear-gradient(135deg, rgba(15, 5, 30, 0.94) 0%, rgba(5, 0, 20, 0.96) 50%, rgba(15, 5, 30, 0.94) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 4px;
+    text-align: left;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+      0 0 60px rgba(110, 63, 181, 0.2),
+      inset 0 0 60px rgba(244, 217, 118, 0.04);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: reveal 1s ease-out forwards;
+    position: relative;
+  }
+
+  .reading-scroll::before, .reading-scroll::after {
+    content: '';
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    left: 15%;
+    right: 15%;
+  }
+  .reading-scroll::before { top: 0; }
+  .reading-scroll::after { bottom: 0; }
+
+  /* НЕЖНЫЙ СВИТОК ЛЕНОРМАН */
+  .reading-scroll.lenormand-scroll {
+    background: linear-gradient(135deg, rgba(45, 20, 45, 0.92) 0%, rgba(30, 10, 35, 0.95) 50%, rgba(45, 20, 45, 0.92) 100%);
+    border-color: rgba(244, 193, 217, 0.5);
+    box-shadow: 0 0 60px rgba(244, 193, 217, 0.15), inset 0 0 60px rgba(244, 193, 217, 0.04);
+  }
+
+  .reading-scroll.lenormand-scroll::before,
+  .reading-scroll.lenormand-scroll::after {
+    background: linear-gradient(90deg, transparent, #f4c1d9, transparent);
+  }
+
+  .reading-scroll.lenormand-scroll .scroll-section-title-center,
+  .reading-scroll.lenormand-scroll .scroll-section-title {
+    color: #f4c1d9;
+  }
+
+  .reading-scroll.lenormand-scroll .scroll-section-title::after {
+    background: linear-gradient(90deg, rgba(244, 193, 217, 0.5), transparent);
+  }
+
+  .reading-scroll.lenormand-scroll .scroll-divider {
+    color: #f4c1d9;
+  }
+
+  .reading-scroll.lenormand-scroll .scroll-text strong,
+  .reading-scroll.lenormand-scroll .scroll-text em,
+  .reading-scroll.lenormand-scroll .card-mark,
+  .reading-scroll.lenormand-scroll .conclusion-text strong {
+    color: #f4d2e1;
+  }
+
+  .reading-scroll.lenormand-scroll .conclusion-block {
+    border-top-color: rgba(244, 193, 217, 0.3);
+  }
+
+  /* АСТРОЛОГИЧЕСКИЙ БЛОК В КАРТЕ ДНЯ */
+  .astro-context {
+    margin: 24px 0 32px;
+    padding: 20px 24px;
+    background: rgba(244, 217, 118, 0.05);
+    border: 1px solid rgba(244, 217, 118, 0.25);
+    border-radius: 4px;
+  }
+
+  .astro-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(244, 217, 118, 0.1);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .astro-row:last-child { border-bottom: none; }
+
+  .astro-label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--silver);
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .astro-value {
+    font-family: 'Italiana', serif;
+    font-size: 18px;
+    color: var(--gold-bright);
+    letter-spacing: 0.05em;
+  }
+
+  .daily-scroll {
+    background: linear-gradient(135deg, rgba(40, 20, 5, 0.92) 0%, rgba(20, 10, 0, 0.95) 50%, rgba(40, 20, 5, 0.92) 100%);
+    border-color: rgba(244, 217, 118, 0.5);
+  }
+
+  @keyframes reveal {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-section { margin-bottom: 32px; }
+  .scroll-section:last-child { margin-bottom: 0; }
+
+  .scroll-section-title {
+    font-family: 'Italiana', serif;
+    font-size: 26px;
+    color: var(--gold-bright);
+    margin-bottom: 16px;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .scroll-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.5), transparent);
+  }
+
+  .scroll-section-title-center {
+    font-family: 'Italiana', serif;
+    font-size: 30px;
+    color: var(--gold-bright);
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  .scroll-divider {
+    text-align: center;
+    color: var(--gold);
+    margin: 12px 0 28px;
+    font-size: 14px;
+    letter-spacing: 0.5em;
+    opacity: 0.7;
+  }
+
+  .scroll-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    line-height: 1.85;
+    color: var(--pearl);
+    opacity: 0.95;
+  }
+
+  .scroll-text + .scroll-text {
+    margin-top: 14px;
+  }
+
+  .scroll-text strong {
+    color: var(--gold-bright);
+    font-weight: 600;
+  }
+
+  .scroll-text em {
+    color: var(--gold-bright);
+    font-style: italic;
+  }
+
+  .card-mark {
+    font-family: 'Italiana', serif;
+    color: var(--gold-bright);
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  .conclusion-block {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(212, 175, 55, 0.3);
+    text-align: center;
+  }
+
+  .conclusion-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    line-height: 1.7;
+    color: var(--pearl);
+    font-style: italic;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .conclusion-text strong {
+    color: var(--gold-bright);
+    font-weight: 600;
+    font-style: normal;
+  }
+
+  /* ═══ КНОПКИ ═══ */
+  .actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 50px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 18px 38px;
+    background: rgba(10, 4, 32, 0.7);
+    color: var(--gold-bright);
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+    transform: translateY(101%);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: -1;
+  }
+
+  .btn:hover {
+    color: var(--ink);
+    border-color: var(--gold-bright);
+    box-shadow: 0 0 30px rgba(244, 217, 118, 0.5);
+    letter-spacing: 0.3em;
+  }
+
+  .btn:hover::before { transform: translateY(0); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(244, 217, 118, 0.1) 100%);
+  }
+
+  .shuffling .card { animation: shuffle 0.6s ease-in-out; }
+
+  @keyframes shuffle {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    25% { transform: translateY(-30px) rotate(-5deg); }
+    50% { transform: translateY(0) rotate(5deg); }
+    75% { transform: translateY(-15px) rotate(-3deg); }
+  }
+
+  .sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--gold-bright);
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 8px 2px var(--gold-bright);
+    animation: sparkle-fade 1.5s ease-out forwards;
+  }
+
+  @keyframes sparkle-fade {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); }
+  }
+
+  footer {
+    text-align: center;
+    padding: 60px 20px 40px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--silver);
+    opacity: 0.7;
+    font-size: 15px;
+    text-shadow: 0 2px 15px rgba(0,0,0,0.9);
+  }
+
+  /* ═══════════════════════════════════════
+     МОБИЛЬНАЯ АДАПТАЦИЯ
+     ═══════════════════════════════════════ */
+
+  /* Планшеты и небольшие экраны */
+  @media (max-width: 900px) {
+    header { padding: 60px 20px 30px; }
+    .systems-grid { gap: 20px; }
+    .system-card { padding: 40px 24px; }
+    .system-name { font-size: 24px; }
+    .system-desc { font-size: 16px; }
+    .spreads-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+    .spread-card { padding: 28px 22px; }
+    .reading-scroll { padding: 40px 32px; }
+  }
+
+  /* Мобильные устройства */
+  @media (max-width: 700px) {
+    header { padding: 50px 16px 24px; }
+
+    h1 { letter-spacing: 0.12em; }
+
+    .header-quote {
+      font-size: 17px;
+      padding: 0 8px;
+    }
+
+    .ornament { max-width: 240px; gap: 12px; }
+
+    .section-title { font-size: 26px; padding: 0 10px; }
+    .section-subtitle { font-size: 16px; margin-bottom: 36px; padding: 0 10px; }
+
+    /* Главные системы — стек на мобилке */
+    .systems-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .system-card { padding: 32px 22px; }
+    .system-glyph { width: 64px; height: 64px; margin-bottom: 18px; }
+    .system-name { font-size: 22px; }
+    .system-desc { font-size: 15px; line-height: 1.5; }
+
+    /* Расклады */
+    .spread-selection { padding: 0 14px; }
+    .spreads-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .spread-card { padding: 22px 14px; }
+    .spread-icon { font-size: 32px; margin-bottom: 12px; }
+    .spread-name { font-size: 14px; letter-spacing: 0.1em; }
+    .spread-desc { font-size: 13px; line-height: 1.4; }
+
+    /* Карты в раскладе — компактные */
+    .reading-area { padding: 0 10px; }
+    .reading-title { font-size: 30px; }
+    .reading-subtitle { font-size: 16px; padding: 0 10px; }
+
+    .cards-container { gap: 10px; margin: 30px 0; }
+
+    .card { width: 105px; height: 178px; }
+    .card-symbol { font-size: 36px; }
+    .card-name { font-size: 9px; padding: 0 2px; }
+    .card-number { font-size: 8px; }
+    .card-position {
+      font-size: 9px;
+      max-width: 105px;
+      letter-spacing: 0.15em;
+    }
+    .card-back-sigil { width: 60px; height: 60px; }
+
+    /* Свиток интерпретации */
+    .reading-scroll {
+      padding: 28px 18px;
+      margin-top: 36px;
+    }
+    .scroll-section { margin-bottom: 24px; }
+    .scroll-section-title {
+      font-size: 19px;
+      gap: 10px;
+    }
+    .scroll-section-title-center { font-size: 22px; }
+    .scroll-text {
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .scroll-text + .scroll-text { margin-top: 12px; }
+    .conclusion-block { margin-top: 28px; padding-top: 24px; }
+    .conclusion-text {
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    /* Карта дня — большая, но влезающая */
+    .daily-area { padding: 0 10px; }
+    .card.daily {
+      width: 220px;
+      height: 370px;
+    }
+    .card.daily .card-symbol { font-size: 76px; }
+    .card.daily .card-name { font-size: 17px; }
+    .card.daily .card-number { font-size: 11px; }
+    .card.daily .card-back-sigil { width: 120px; height: 120px; }
+
+    .astro-context {
+      padding: 16px 18px;
+      margin: 20px 0 28px;
+    }
+    .astro-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 10px 0;
+    }
+    .astro-label { font-size: 10px; }
+    .astro-value { font-size: 16px; }
+
+    /* Кнопки */
+    .actions { gap: 12px; margin-top: 36px; }
+    .btn {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      padding: 14px 24px;
+      width: 100%;
+      max-width: 280px;
+    }
+    .btn-text { font-size: 11px; margin-bottom: 22px; }
+  }
+
+  /* Очень маленькие экраны */
+  @media (max-width: 380px) {
+    h1 { letter-spacing: 0.08em; }
+    .header-quote { font-size: 16px; }
+    .spreads-grid { grid-template-columns: 1fr; }
+    .card { width: 130px; height: 218px; }
+    .card-symbol { font-size: 44px; }
+    .card-name { font-size: 11px; }
+    .card-position { max-width: 130px; }
+  }
+
+  /* Альбомная ориентация на мобильных */
+  @media (max-width: 900px) and (orientation: landscape) {
+    header { padding: 30px 20px 20px; }
+    h1 { font-size: clamp(40px, 8vw, 70px); margin-bottom: 8px; }
+    .logo-sigil { width: 60px; height: 60px; margin-bottom: 14px; }
+    .header-quote { font-size: 16px; }
+  }
+
+  .hidden { display: none !important; }
+
+  /* Тач-улучшения для мобильных */
+  @media (hover: none) and (pointer: coarse) {
+    /* Убираем hover-эффекты которые "залипают" на тач-устройствах */
+    .system-card:hover { transform: none; }
+    .system-card:active {
+      transform: scale(0.98);
+      border-color: rgba(244, 217, 118, 0.7);
+    }
+    .spread-card:hover { transform: none; }
+    .spread-card:active {
+      transform: scale(0.98);
+      border-color: rgba(244, 217, 118, 0.65);
+    }
+    .btn:hover { letter-spacing: 0.25em; }
+    .btn:active { transform: scale(0.97); }
+    .card:not(.flipped):hover .card-back { transform: none; }
+  }
+
+  /* Плавный скролл */
+  html { scroll-behavior: smooth; }
+
+  /* Безопасные отступы для устройств с "челкой" */
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* ═══════════════════════════════════════
+     ЮРИДИЧЕСКИЕ ЭЛЕМЕНТЫ
+     ═══════════════════════════════════════ */
+
+  /* Модальное окно подтверждения возраста */
+  .age-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+
+  .age-gate-content {
+    max-width: 520px;
+    padding: 50px 40px;
+    background: linear-gradient(135deg, rgba(20, 10, 40, 0.95) 0%, rgba(10, 4, 32, 0.98) 100%);
+    border: 1px solid rgba(244, 217, 118, 0.5);
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(244, 217, 118, 0.2);
+  }
+
+  .age-gate-sigil {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    color: var(--gold-bright);
+    filter: drop-shadow(0 0 15px rgba(244, 217, 118, 0.5));
+  }
+
+  .age-gate-title {
+    font-family: 'Italiana', serif;
+    font-size: 32px;
+    color: var(--gold-bright);
+    margin-bottom: 16px;
+    letter-spacing: 0.08em;
+  }
+
+  .age-gate-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--pearl);
+    margin-bottom: 28px;
+    opacity: 0.92;
+  }
+
+  .age-gate-text strong { color: var(--gold-bright); font-weight: 600; }
+
+  .age-gate-buttons {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .age-gate-buttons .btn { width: auto; min-width: 140px; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--silver);
+    border-color: rgba(200, 184, 216, 0.4);
+  }
+
+  .btn-secondary:hover {
+    color: var(--silver);
+    border-color: var(--silver);
+    box-shadow: 0 0 20px rgba(200, 184, 216, 0.2);
+  }
+
+  .btn-secondary::before { display: none; }
+
+  /* Cookies banner */
+  .cookies-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 18px 24px;
+    background: rgba(5, 0, 20, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(244, 217, 118, 0.35);
+    transform: translateY(100%);
+    transition: transform 0.5s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cookies-banner.visible { transform: translateY(0); }
+
+  .cookies-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: var(--pearl);
+    line-height: 1.5;
+    flex: 1;
+    min-width: 260px;
+    max-width: 700px;
+    opacity: 0.9;
+  }
+
+  .cookies-text a {
+    color: var(--gold-bright);
+    text-decoration: underline;
+    text-decoration-color: rgba(244, 217, 118, 0.4);
+    cursor: pointer;
+  }
+
+  .cookies-text a:hover { text-decoration-color: var(--gold-bright); }
+
+  .cookies-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cookies-buttons .btn {
+    padding: 12px 22px;
+    font-size: 11px;
+    width: auto;
+  }
+
+  /* Модальное окно политики/дисклеймера */
+  .legal-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    background: rgba(0, 0, 0, 0.92);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 30px 20px;
+    overflow-y: auto;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+
+  .legal-modal.visible { display: flex; }
+
+  .legal-content {
+    max-width: 720px;
+    width: 100%;
+    padding: 50px 50px 40px;
+    background: linear-gradient(135deg, rgba(20, 10, 40, 0.96) 0%, rgba(10, 4, 32, 0.98) 100%);
+    border: 1px solid rgba(244, 217, 118, 0.4);
+    border-radius: 6px;
+    position: relative;
+    margin: auto;
+  }
+
+  .legal-close {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    background: transparent;
+    border: none;
+    color: var(--silver);
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+  }
+
+  .legal-close:hover { opacity: 1; color: var(--gold-bright); }
+
+  .legal-title {
+    font-family: 'Italiana', serif;
+    font-size: 28px;
+    color: var(--gold-bright);
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  .legal-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--pearl);
+    opacity: 0.92;
+  }
+
+  .legal-text h3 {
+    font-family: 'Italiana', serif;
+    font-size: 20px;
+    color: var(--gold-bright);
+    margin: 24px 0 12px;
+    font-weight: 400;
+  }
+
+  .legal-text p { margin-bottom: 14px; }
+
+  .legal-text ul {
+    margin: 12px 0 14px 0;
+    padding-left: 24px;
+  }
+
+  .legal-text li { margin-bottom: 8px; }
+
+  /* Ссылки в футере */
+  .footer-links {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    font-size: 13px;
+  }
+
+  .footer-links a {
+    color: var(--silver);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .footer-links a:hover {
+    color: var(--gold-bright);
+    border-bottom-color: rgba(244, 217, 118, 0.5);
+  }
+
+  .disclaimer-mini {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--silver);
+    opacity: 0.55;
+    font-style: italic;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+
+  /* Мобильные адаптации для юридических блоков */
+  @media (max-width: 700px) {
+    .age-gate-content { padding: 36px 24px; }
+    .age-gate-title { font-size: 24px; }
+    .age-gate-text { font-size: 15px; }
+    .legal-content { padding: 40px 24px 30px; }
+    .legal-title { font-size: 22px; }
+    .legal-text { font-size: 15px; }
+    .cookies-banner { padding: 16px 14px; }
+    .cookies-text { font-size: 14px; min-width: auto; }
+    .cookies-buttons .btn { padding: 10px 18px; font-size: 10px; }
+    .footer-links { gap: 14px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ ПОДТВЕРЖДЕНИЕ ВОЗРАСТА (18+) ═══ -->
+<div class="age-gate" id="age-gate" role="dialog" aria-modal="true" aria-labelledby="age-gate-title">
+  <div class="age-gate-content">
+    <svg class="age-gate-sigil" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="1"/>
+      <polygon points="50,15 58,42 85,42 63,58 71,85 50,68 29,85 37,58 15,42 42,42" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="50" cy="50" r="3" fill="currentColor"/>
+    </svg>
+    <div class="age-gate-title">Selenia · 18+</div>
+    <p class="age-gate-text">
+      Этот сайт содержит материалы оккультного и эзотерического характера, предназначенные для лиц <strong>старше 18 лет</strong>.
+    </p>
+    <p class="age-gate-text">
+      Подтверждая вход, вы соглашаетесь с тем, что вам исполнилось 18 лет, и вы понимаете развлекательный характер сайта.
+    </p>
+    <div class="age-gate-buttons">
+      <button class="btn btn-primary" id="age-confirm">Мне есть 18, войти</button>
+      <button class="btn btn-secondary" id="age-decline">Покинуть сайт</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ БАННЕР COOKIES (152-ФЗ) ═══ -->
+<div class="cookies-banner" id="cookies-banner" role="region" aria-label="Согласие на cookies">
+  <p class="cookies-text">
+    Этот сайт использует технические cookies для запоминания ваших настроек (например, согласия на вход). Никакие персональные данные не собираются и не передаются третьим лицам. Подробнее в <a id="open-privacy">Политике конфиденциальности</a>.
+  </p>
+  <div class="cookies-buttons">
+    <button class="btn btn-primary" id="cookies-accept">Принять</button>
+  </div>
+</div>
+
+<!-- ═══ МОДАЛЬНОЕ ОКНО: ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ ═══ -->
+<div class="legal-modal" id="privacy-modal" role="dialog" aria-modal="true">
+  <div class="legal-content">
+    <button class="legal-close" id="close-privacy" aria-label="Закрыть">×</button>
+    <h2 class="legal-title">Политика конфиденциальности</h2>
+    <div class="legal-text">
+      <p><em>Действует с момента публикации сайта Selenia.</em></p>
+
+      <h3>1. Общие положения</h3>
+      <p>Настоящая Политика разработана в соответствии с Федеральным законом РФ № 152-ФЗ «О персональных данных» и определяет порядок обработки информации пользователей сайта Selenia (далее «Сайт»).</p>
+
+      <h3>2. Какие данные собирает сайт</h3>
+      <p>Сайт <strong>не собирает</strong> и <strong>не передаёт третьим лицам</strong> персональные данные пользователей. Сайт работает полностью на стороне браузера пользователя без передачи информации на сервер.</p>
+      <p>Сайт использует только технические cookies и локальное хранилище браузера для следующих целей:</p>
+      <ul>
+        <li>Запоминание подтверждения возраста (18+)</li>
+        <li>Запоминание согласия на использование cookies</li>
+      </ul>
+
+      <h3>3. Использование данных</h3>
+      <p>Все технические данные хранятся исключительно на устройстве пользователя. Никакие данные не передаются на серверы Selenia или третьим сторонам.</p>
+
+      <h3>4. Сторонние сервисы</h3>
+      <p>Сайт загружает шрифты с сервиса Google Fonts (fonts.googleapis.com и fonts.gstatic.com). При загрузке шрифтов Google может получать технические данные о вашем браузере. Подробнее: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
+
+      <h3>5. Права пользователя</h3>
+      <p>Вы можете в любой момент очистить технические cookies через настройки браузера. Это сбросит все сохранённые настройки сайта.</p>
+
+      <h3>6. Изменения политики</h3>
+      <p>Политика может быть изменена. Актуальная версия всегда доступна на этой странице.</p>
+
+      <h3>7. Контакты</h3>
+      <p>По вопросам, связанным с обработкой данных, свяжитесь с владельцем сайта.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ МОДАЛЬНОЕ ОКНО: ПОЛЬЗОВАТЕЛЬСКОЕ СОГЛАШЕНИЕ ═══ -->
+<div class="legal-modal" id="terms-modal" role="dialog" aria-modal="true">
+  <div class="legal-content">
+    <button class="legal-close" id="close-terms" aria-label="Закрыть">×</button>
+    <h2 class="legal-title">Пользовательское соглашение</h2>
+    <div class="legal-text">
+      <h3>1. Развлекательный характер сервиса</h3>
+      <p>Сайт Selenia предоставляет <strong>развлекательно-информационный сервис</strong> в области карт Таро, Ленорман и астрологии. Все материалы и интерпретации носят <strong>исключительно развлекательный характер</strong> и не являются профессиональной консультацией.</p>
+
+      <h3>2. Не является заменой профессиональной помощи</h3>
+      <p>Информация, полученная через сайт, <strong>не заменяет</strong> консультации профессиональных специалистов: врачей, психологов, юристов, финансовых консультантов. При проблемах со здоровьем, психологическим состоянием, финансами или правовыми вопросами обращайтесь к соответствующим специалистам.</p>
+
+      <h3>3. Возрастное ограничение</h3>
+      <p>Сайт предназначен для лиц <strong>старше 18 лет</strong>. Пользуясь сайтом, вы подтверждаете, что вам исполнилось 18 лет.</p>
+
+      <h3>4. Ответственность</h3>
+      <p>Владельцы сайта не несут ответственности за решения, принятые пользователями на основе информации, полученной на сайте. Все решения вы принимаете самостоятельно и на свой риск.</p>
+
+      <h3>5. Интеллектуальная собственность</h3>
+      <p>Дизайн, тексты и оформление сайта Selenia защищены авторским правом. Копирование материалов без разрешения запрещено.</p>
+
+      <h3>6. Бесплатное использование</h3>
+      <p>Сайт предоставляется бесплатно. Сайт не оказывает платных услуг и не принимает оплату.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ВСЕЛЕННАЯ — МЛЕЧНЫЙ ПУТЬ НА ЧЁРНОМ ═══ -->
+<div class="universe-bg">
+  <div class="galaxy-band-3"></div>
+  <div class="galaxy-band-2"></div>
+  <div class="galaxy-band"></div>
+  <div class="dust-lane"></div>
+  <div class="dust-patch-1"></div>
+  <div class="dust-patch-2"></div>
+  <div class="nebula-cloud-1"></div>
+  <div class="nebula-cloud-2"></div>
+  <div class="nebula-cloud-3"></div>
+</div>
+<div class="universe-overlay"></div>
+<div class="stars-layer stars-tiny"></div>
+<div class="stars-layer stars-small"></div>
+<div class="stars-layer stars-medium"></div>
+<div class="stars-layer stars-bright"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
+
+<header>
+  <svg class="logo-sigil" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(244,217,118,0.6)" stroke-width="0.5"/>
+    <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(244,217,118,0.4)" stroke-width="0.5"/>
+    <circle cx="50" cy="50" r="20" fill="none" stroke="rgba(244,217,118,0.3)" stroke-width="0.5"/>
+    <polygon points="50,15 58,42 85,42 63,58 71,85 50,68 29,85 37,58 15,42 42,42" fill="none" stroke="rgba(244,217,118,0.85)" stroke-width="0.7"/>
+    <circle cx="50" cy="50" r="3" fill="rgba(244,217,118,1)"/>
+  </svg>
+  <div class="subtitle">Mystic Oracle</div>
+  <h1>SELENIA</h1>
+  <div class="ornament">
+    <span style="font-size: 18px;">✦</span>
+  </div>
+  <p class="header-quote">
+    Прислушайтесь к шёпоту звёзд. Карты знают то, что вы ещё не осмелились спросить.
+  </p>
+</header>
+
+<main>
+  <!-- ВЫБОР СИСТЕМЫ ГАДАНИЯ -->
+  <section class="system-selection" id="system-selection">
+    <h2 class="section-title">Что вас ведёт сегодня?</h2>
+    <p class="section-subtitle">Три пути откровения, три голоса вселенной</p>
+    <div class="systems-grid">
+      <div class="system-card" data-system="tarot">
+        <div class="system-glyph tarot-glyph">
+          <svg viewBox="0 0 80 80">
+            <polygon points="40,10 48,32 70,32 52,46 60,68 40,54 20,68 28,46 10,32 32,32" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="40" cy="40" r="4" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="system-name">Таро</div>
+        <div class="system-desc">Древняя мудрость 78 карт, шесть раскладов глубоких откровений</div>
+      </div>
+      <div class="system-card" data-system="lenormand">
+        <div class="system-glyph lenormand-glyph">
+          <svg viewBox="0 0 80 80">
+            <path d="M 40 15 C 28 15, 20 25, 20 38 C 20 50, 30 58, 40 65 C 50 58, 60 50, 60 38 C 60 25, 52 15, 40 15 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="40" cy="38" r="5" fill="currentColor" opacity="0.5"/>
+            <path d="M 40 25 L 40 50" stroke="currentColor" stroke-width="0.8" opacity="0.6"/>
+            <path d="M 28 38 L 52 38" stroke="currentColor" stroke-width="0.8" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="system-name">Ленорман</div>
+        <div class="system-desc">Цыганская колода 36 карт, нежное предсказание судьбы и сердца</div>
+      </div>
+      <div class="system-card" data-system="dailycard">
+        <div class="system-glyph daily-glyph">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="14" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="40" y1="10" x2="40" y2="20" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="40" y1="60" x2="40" y2="70" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="10" y1="40" x2="20" y2="40" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="60" y1="40" x2="70" y2="40" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="19" y1="19" x2="26" y2="26" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="54" y1="54" x2="61" y2="61" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="61" y1="19" x2="54" y2="26" stroke="currentColor" stroke-width="1.2"/>
+            <line x1="26" y1="54" x2="19" y2="61" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+        </div>
+        <div class="system-name">Карта дня</div>
+        <div class="system-desc">Послание этого дня сквозь звёзды и планеты, что говорит вам сегодня вселенная</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ВЫБОР РАСКЛАДА ДЛЯ ТАРО ИЛИ ЛЕНОРМАН -->
+  <section class="spread-selection hidden" id="spread-selection">
+    <button class="btn-text" id="back-to-systems">← К выбору системы</button>
+    <h2 class="section-title" id="spread-section-title">Выберите свой путь</h2>
+    <p class="section-subtitle" id="spread-section-subtitle">Шесть дорог, шесть откровений вселенной · 5 карт в каждом раскладе</p>
+    <div class="spreads-grid" id="spreads-grid"></div>
+  </section>
+
+  <!-- ОБЛАСТЬ РАСКЛАДА -->
+  <section class="reading-area" id="reading-area">
+    <h2 class="reading-title" id="reading-title"></h2>
+    <p class="reading-subtitle" id="reading-subtitle"></p>
+    <div class="cards-container" id="cards-container"></div>
+    <div id="reading-output"></div>
+    <div class="actions">
+      <button class="btn btn-primary" id="reveal-btn">Открыть карты</button>
+      <button class="btn hidden" id="new-reading-btn">Новый расклад</button>
+      <button class="btn hidden" id="back-btn">К выбору</button>
+    </div>
+  </section>
+
+  <!-- КАРТА ДНЯ -->
+  <section class="daily-area hidden" id="daily-area">
+    <button class="btn-text" id="back-from-daily">← К выбору системы</button>
+    <h2 class="reading-title">Карта дня</h2>
+    <p class="reading-subtitle" id="daily-date"></p>
+    <div class="daily-card-container" id="daily-card-container"></div>
+    <div id="daily-output"></div>
+    <div class="actions">
+      <button class="btn btn-primary" id="reveal-daily-btn">Узнать послание дня</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>✦ Selenia · Лунный Оракул Вселенной ✦</p>
+  <div class="footer-links">
+    <a id="footer-privacy">Политика конфиденциальности</a>
+    <a id="footer-terms">Пользовательское соглашение</a>
+  </div>
+  <p class="disclaimer-mini">
+    Сайт носит развлекательно-информационный характер. Содержимое предназначено для лиц старше 18 лет. Расклады карт и астрологические толкования не заменяют профессиональную помощь врача, психолога или юриста.
+  </p>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// ПОЛНАЯ КОЛОДА — 78 КАРТ
+// ═══════════════════════════════════════════════════════
+const MAJOR = [
+  { id: 'fool', num: '0', name: 'Шут', symbol: '✦', suit: 'major' },
+  { id: 'magician', num: 'I', name: 'Маг', symbol: '⚜', suit: 'major' },
+  { id: 'priestess', num: 'II', name: 'Жрица', symbol: '☽', suit: 'major' },
+  { id: 'empress', num: 'III', name: 'Императрица', symbol: '♀', suit: 'major' },
+  { id: 'emperor', num: 'IV', name: 'Император', symbol: '♂', suit: 'major' },
+  { id: 'hierophant', num: 'V', name: 'Иерофант', symbol: '☩', suit: 'major' },
+  { id: 'lovers', num: 'VI', name: 'Влюблённые', symbol: '♡', suit: 'major' },
+  { id: 'chariot', num: 'VII', name: 'Колесница', symbol: '⚔', suit: 'major' },
+  { id: 'strength', num: 'VIII', name: 'Сила', symbol: '∞', suit: 'major' },
+  { id: 'hermit', num: 'IX', name: 'Отшельник', symbol: '✧', suit: 'major' },
+  { id: 'wheel', num: 'X', name: 'Колесо Фортуны', symbol: '☸', suit: 'major' },
+  { id: 'justice', num: 'XI', name: 'Справедливость', symbol: '⚖', suit: 'major' },
+  { id: 'hanged', num: 'XII', name: 'Повешенный', symbol: '⊥', suit: 'major' },
+  { id: 'death', num: 'XIII', name: 'Смерть', symbol: '☥', suit: 'major' },
+  { id: 'temperance', num: 'XIV', name: 'Умеренность', symbol: '☲', suit: 'major' },
+  { id: 'devil', num: 'XV', name: 'Дьявол', symbol: '⛧', suit: 'major' },
+  { id: 'tower', num: 'XVI', name: 'Башня', symbol: '⚡', suit: 'major' },
+  { id: 'star', num: 'XVII', name: 'Звезда', symbol: '★', suit: 'major' },
+  { id: 'moon', num: 'XVIII', name: 'Луна', symbol: '☾', suit: 'major' },
+  { id: 'sun', num: 'XIX', name: 'Солнце', symbol: '☀', suit: 'major' },
+  { id: 'judgement', num: 'XX', name: 'Суд', symbol: '✟', suit: 'major' },
+  { id: 'world', num: 'XXI', name: 'Мир', symbol: '◯', suit: 'major' }
+];
+
+function buildMinor() {
+  const suits = [
+    { name: 'Жезлы', key: 'wands', symbol: '⚝',
+      element: 'огонь',
+      elementGen: 'огня',
+      sphereNom: 'страсть, действие и творческая воля',
+      sphereGen: 'страсти, действия и творческой воли',
+      sphereAcc: 'страсть, действие и творческую волю',
+      sphereIns: 'страстью, действием и творческой волей',
+      sphereDescription: 'это сфера страсти, действия и творческой воли',
+      energyShort: 'огненная энергия' },
+    { name: 'Кубки', key: 'cups', symbol: '♢',
+      element: 'вода',
+      elementGen: 'воды',
+      sphereNom: 'чувства, отношения и интуиция',
+      sphereGen: 'чувств, отношений и интуиции',
+      sphereAcc: 'чувства, отношения и интуицию',
+      sphereIns: 'чувствами, отношениями и интуицией',
+      sphereDescription: 'это сфера чувств, отношений и интуиции',
+      energyShort: 'водная энергия' },
+    { name: 'Мечи', key: 'swords', symbol: '⚑',
+      element: 'воздух',
+      elementGen: 'воздуха',
+      sphereNom: 'мысль, истина и ясность ума',
+      sphereGen: 'мысли, истины и ясности ума',
+      sphereAcc: 'мысль, истину и ясность ума',
+      sphereIns: 'мыслью, истиной и ясностью ума',
+      sphereDescription: 'это сфера мысли, истины и ясности ума',
+      energyShort: 'воздушная энергия' },
+    { name: 'Пентакли', key: 'pentacles', symbol: '✪',
+      element: 'земля',
+      elementGen: 'земли',
+      sphereNom: 'материя, тело и реальные дела',
+      sphereGen: 'материи, тела и реальных дел',
+      sphereAcc: 'материю, тело и реальные дела',
+      sphereIns: 'материей, телом и реальными делами',
+      sphereDescription: 'это сфера материи, тела и реальных дел',
+      energyShort: 'земная энергия' }
+  ];
+
+  const ranks = [
+    { num: 'Туз', value: 1,
+      essenceNom: 'чистый дар стихии и семя нового начала',
+      essenceShort: 'новое начало',
+      meaning: 'Это карта чистого дара и нового начала. Стихия дарит вам семя, из которого вырастет нечто важное.' },
+    { num: '2', value: 2,
+      essenceNom: 'выбор, баланс и встреча двух полюсов',
+      essenceShort: 'выбор и баланс',
+      meaning: 'Эта карта говорит о выборе, балансе и встрече противоположностей. Перед вами два пути.' },
+    { num: '3', value: 3,
+      essenceNom: 'первый плод сотрудничества и роста',
+      essenceShort: 'первый плод роста',
+      meaning: 'Это карта первого плода и роста. То, что вы посеяли, начинает приносить результаты.' },
+    { num: '4', value: 4,
+      essenceNom: 'устойчивая основа и пауза для укрепления',
+      essenceShort: 'устойчивая основа',
+      meaning: 'Эта карта об устойчивости и о паузе для укрепления. Сейчас важно закрепить достигнутое.' },
+    { num: '5', value: 5,
+      essenceNom: 'кризис как испытание и точка роста',
+      essenceShort: 'кризис и испытание',
+      meaning: 'Это карта кризиса, который оказывается испытанием и точкой роста. Через трудность приходит сила.' },
+    { num: '6', value: 6,
+      essenceNom: 'восстановление гармонии и взаимный обмен',
+      essenceShort: 'гармония и обмен',
+      meaning: 'Эта карта о восстановлении гармонии и взаимном обмене. После бури приходит покой.' },
+    { num: '7', value: 7,
+      essenceNom: 'мечта, иллюзия и выбор подлинного пути',
+      essenceShort: 'мечта и выбор пути',
+      meaning: 'Это карта мечты, иллюзии и выбора подлинного пути. Важно отличить реальное от воображаемого.' },
+    { num: '8', value: 8,
+      essenceNom: 'мастерство в действии и ритм движения',
+      essenceShort: 'мастерство и движение',
+      meaning: 'Эта карта о мастерстве в действии и ритме движения. Вы вошли в свой поток.' },
+    { num: '9', value: 9,
+      essenceNom: 'кульминация и момент почти полного исполнения',
+      essenceShort: 'кульминация',
+      meaning: 'Это карта кульминации, момент почти полного исполнения задуманного. Цель уже близко.' },
+    { num: '10', value: 10,
+      essenceNom: 'итог и завершение целого цикла опыта',
+      essenceShort: 'итог и завершение',
+      meaning: 'Эта карта об итоге и завершении целого цикла опыта. Один путь подходит к концу.' },
+    { num: 'Паж', value: 11,
+      essenceNom: 'юная, любопытная энергия первооткрывателя',
+      essenceShort: 'юная энергия',
+      meaning: 'Это карта юной, любопытной энергии первооткрывателя. К вам приходит весть или новое начинание.' },
+    { num: 'Рыцарь', value: 12,
+      essenceNom: 'действующая, миссионерская сила в движении',
+      essenceShort: 'сила в движении',
+      meaning: 'Эта карта о действующей силе в движении. Время решительных шагов и активных действий.' },
+    { num: 'Королева', value: 13,
+      essenceNom: 'зрелая, питающая мудрость стихии',
+      essenceShort: 'зрелая мудрость',
+      meaning: 'Это карта зрелой, питающей мудрости стихии. К вам приходит покровительство сильной женской энергии.' },
+    { num: 'Король', value: 14,
+      essenceNom: 'воплощённое мастерство и высшая власть стихии',
+      essenceShort: 'мастерство и власть',
+      meaning: 'Эта карта о воплощённом мастерстве и высшей власти стихии. Вы достигли вершины своих возможностей.' }
+  ];
+
+  const minor = [];
+  suits.forEach(suit => {
+    ranks.forEach(rank => {
+      minor.push({
+        id: `${suit.key}-${rank.value}`,
+        num: rank.num,
+        name: `${rank.num} ${suit.name}`,
+        symbol: suit.symbol,
+        suit: suit.key,
+        suitName: suit.name,
+        element: suit.element,
+        elementGen: suit.elementGen,
+        sphereNom: suit.sphereNom,
+        sphereGen: suit.sphereGen,
+        sphereAcc: suit.sphereAcc,
+        sphereIns: suit.sphereIns,
+        sphereDescription: suit.sphereDescription,
+        energyShort: suit.energyShort,
+        essenceNom: rank.essenceNom,
+        essenceShort: rank.essenceShort,
+        meaning: rank.meaning,
+        rankValue: rank.value
+      });
+    });
+  });
+  return minor;
+}
+
+const DECK = [...MAJOR, ...buildMinor()];
+
+// ═══════════════════════════════════════════════════════
+// КОЛОДА ЛЕНОРМАН — 36 КАРТ
+// Нежная, романтичная, образная колода
+// ═══════════════════════════════════════════════════════
+const LENORMAND = [
+  { id: 1, name: 'Всадник', symbol: '🐎', meaning: 'весть, новости, новое начало',
+    description: 'Эта карта говорит о добрых вестях, которые скоро придут. В вашу жизнь врывается свежий ветер перемен.' },
+  { id: 2, name: 'Клевер', symbol: '☘', meaning: 'удача, надежда, маленькое счастье',
+    description: 'Маленькое, но настоящее счастье уже рядом. Удача улыбается вам в неожиданном месте.' },
+  { id: 3, name: 'Корабль', symbol: '⛵', meaning: 'путешествие, перемены, движение',
+    description: 'Впереди путешествие или большие перемены. Жизнь зовёт вас в дорогу, и сердце готово плыть.' },
+  { id: 4, name: 'Дом', symbol: '🏠', meaning: 'семья, уют, безопасность',
+    description: 'Карта тёплого очага и родного дома. В вашей жизни сейчас ценны корни, семья, безопасность.' },
+  { id: 5, name: 'Дерево', symbol: '🌳', meaning: 'здоровье, рост, жизненная сила',
+    description: 'Карта жизненных сил и постепенного роста. Ваше здоровье и внутренняя сила укрепляются с каждым днём.' },
+  { id: 6, name: 'Облака', symbol: '☁', meaning: 'сомнения, неясность, тревога',
+    description: 'В вашей жизни есть туман неопределённости. Подождите, пока облака разойдутся, и истина проявится.' },
+  { id: 7, name: 'Змея', symbol: '🐍', meaning: 'мудрость, искушение, осторожность',
+    description: 'Карта осторожности и мудрости. Кто-то рядом может быть не тем, кем кажется. Слушайте интуицию.' },
+  { id: 8, name: 'Гроб', symbol: '⚰', meaning: 'окончание, трансформация, отпускание',
+    description: 'Что-то завершается в вашей жизни. Это не страшно, а необходимо для нового начала.' },
+  { id: 9, name: 'Букет', symbol: '💐', meaning: 'красота, подарок, признание',
+    description: 'Карта нежного признания и красоты. К вам приходит подарок, комплимент или приятная неожиданность.' },
+  { id: 10, name: 'Коса', symbol: '⚒', meaning: 'внезапность, разрыв, решительность',
+    description: 'Внезапный поворот или резкое решение. Не бойтесь действовать решительно, когда время приходит.' },
+  { id: 11, name: 'Метла', symbol: '🧹', meaning: 'споры, разговоры, очищение',
+    description: 'Время серьёзного разговора или генеральной уборки в жизни. Очистите пространство от лишнего.' },
+  { id: 12, name: 'Птицы', symbol: '🕊', meaning: 'волнение, общение, два события',
+    description: 'Лёгкая суета и важные разговоры. Возможно, вас ждут две встречи или два события сразу.' },
+  { id: 13, name: 'Дитя', symbol: '👶', meaning: 'новизна, наивность, начало',
+    description: 'Карта чистоты и нового начала. К вам возвращается детская способность удивляться миру.' },
+  { id: 14, name: 'Лиса', symbol: '🦊', meaning: 'хитрость, осторожность, обман',
+    description: 'Карта проницательности. Будьте внимательны, не всё, что блестит, есть золото. Слушайте чутьё.' },
+  { id: 15, name: 'Медведь', symbol: '🐻', meaning: 'сила, защита, авторитет',
+    description: 'Карта силы и защиты. Рядом с вами есть могучая опора, или вы сами становитесь ей для других.' },
+  { id: 16, name: 'Звёзды', symbol: '✨', meaning: 'мечты, надежда, вдохновение',
+    description: 'Самая нежная карта надежды. Ваши мечты сбудутся, доверьтесь свету небесных звёзд.' },
+  { id: 17, name: 'Аист', symbol: '🪶', meaning: 'перемены, переезд, новости',
+    description: 'Карта счастливых перемен. В вашу жизнь входит что-то новое и желанное, возможно, переезд или ребёнок.' },
+  { id: 18, name: 'Собака', symbol: '🐕', meaning: 'верность, друг, преданность',
+    description: 'Карта настоящей дружбы и верности. Рядом с вами есть тот, кто никогда не предаст.' },
+  { id: 19, name: 'Башня', symbol: '🏰', meaning: 'одиночество, амбиции, традиции',
+    description: 'Карта внутренней высоты и амбиций. Иногда нужно подняться над суетой, чтобы увидеть путь.' },
+  { id: 20, name: 'Сад', symbol: '🌷', meaning: 'общество, праздник, общение',
+    description: 'Карта радостного общения и встреч. Вас ждёт праздник, вечеринка или приятное светское событие.' },
+  { id: 21, name: 'Гора', symbol: '⛰', meaning: 'препятствие, испытание, усилие',
+    description: 'На пути встречается препятствие, требующее усилий. Но именно через эту вершину вы вырастете.' },
+  { id: 22, name: 'Распутье', symbol: '🛤', meaning: 'выбор, решение, перекрёсток',
+    description: 'Перед вами выбор, и оба пути имеют значение. Слушайте сердце, оно знает истинное направление.' },
+  { id: 23, name: 'Мыши', symbol: '🐭', meaning: 'потери, тревоги, мелкие проблемы',
+    description: 'Мелкие тревоги или потери, которые подтачивают изнутри. Найдите источник и устраните его.' },
+  { id: 24, name: 'Сердце', symbol: '💖', meaning: 'любовь, нежность, чувства',
+    description: 'Самая светлая карта любви и нежности. Ваше сердце открыто, и любовь приходит во всех формах.' },
+  { id: 25, name: 'Кольцо', symbol: '💍', meaning: 'союз, обязательства, договор',
+    description: 'Карта союза и обязательств. Это может быть брак, важный договор или укрепление отношений.' },
+  { id: 26, name: 'Книга', symbol: '📖', meaning: 'тайна, знание, обучение',
+    description: 'Карта скрытого знания. Что-то ещё не открылось вам полностью, но истина уже близко.' },
+  { id: 27, name: 'Письмо', symbol: '✉', meaning: 'весть, послание, документ',
+    description: 'Вас ждёт письмо или важное сообщение. Возможно, давно ожидаемая весть наконец придёт.' },
+  { id: 28, name: 'Кавалер', symbol: '👤', meaning: 'мужская энергия, партнёр',
+    description: 'Карта значимого мужчины в вашей жизни. Это может быть партнёр, друг или новое знакомство.' },
+  { id: 29, name: 'Дама', symbol: '👤', meaning: 'женская энергия, подруга',
+    description: 'Карта значимой женщины в вашей жизни. Это может быть подруга, наставница или вы сами.' },
+  { id: 30, name: 'Лилия', symbol: '⚜', meaning: 'покой, гармония, зрелость',
+    description: 'Карта гармонии и зрелого спокойствия. Ваша жизнь обретает мудрость и устойчивый ритм.' },
+  { id: 31, name: 'Солнце', symbol: '☀', meaning: 'успех, счастье, ясность',
+    description: 'Самая радостная карта колоды. Впереди успех, счастье и ясность во всём, к чему стремитесь.' },
+  { id: 32, name: 'Луна', symbol: '🌙', meaning: 'эмоции, признание, слава',
+    description: 'Карта чувств и тонкого признания. Ваши эмоции глубоки, а творческий потенциал высок.' },
+  { id: 33, name: 'Ключ', symbol: '🗝', meaning: 'разгадка, свобода, успех',
+    description: 'Карта решения и открытия. К вам приходит ответ на давний вопрос или открывается важная дверь.' },
+  { id: 34, name: 'Рыбы', symbol: '🐟', meaning: 'богатство, изобилие, поток',
+    description: 'Карта изобилия и материального благополучия. Деньги текут к вам, словно рыба в сети.' },
+  { id: 35, name: 'Якорь', symbol: '⚓', meaning: 'стабильность, цель, основа',
+    description: 'Карта стабильности и крепкой основы. Вы нашли своё место, и оно надёжно держит вас.' },
+  { id: 36, name: 'Крест', symbol: '✟', meaning: 'судьба, испытание, вера',
+    description: 'Карта судьбы и духовного испытания. Через сложности рождается зрелость души.' }
+];
+
+// РАСКЛАДЫ ЛЕНОРМАН
+const LENORMAND_SPREADS = {
+  love: {
+    name: 'Любовь', icon: '💖', desc: 'Нежные тайны вашего сердца',
+    subtitle: 'Что говорят карты Ленорман о любви',
+    positions: [
+      { title: 'Ваше сердце', focus: 'self' },
+      { title: 'Сердце партнёра', focus: 'partner' },
+      { title: 'Что вас связывает', focus: 'connection' },
+      { title: 'Что испытывает чувства', focus: 'challenge' },
+      { title: 'Что обещает любовь', focus: 'outcome' }
+    ],
+    arena: 'love'
+  },
+  family: {
+    name: 'Семья и дом', icon: '🏠', desc: 'Тепло домашнего очага',
+    subtitle: 'Что говорят карты о вашем доме и близких',
+    positions: [
+      { title: 'Состояние дома', focus: 'self' },
+      { title: 'Близкие люди', focus: 'partner' },
+      { title: 'Атмосфера', focus: 'connection' },
+      { title: 'Что омрачает', focus: 'challenge' },
+      { title: 'Что несёт радость', focus: 'outcome' }
+    ],
+    arena: 'family'
+  },
+  destiny: {
+    name: 'Судьба', icon: '🌙', desc: 'Узор вашего пути',
+    subtitle: 'Что готовит вам судьба в ближайшее время',
+    positions: [
+      { title: 'Прошлое', focus: 'past' },
+      { title: 'Настоящее', focus: 'present' },
+      { title: 'Скрытое', focus: 'hidden' },
+      { title: 'Близкое будущее', focus: 'near' },
+      { title: 'Дальнее будущее', focus: 'far' }
+    ],
+    arena: 'destiny'
+  },
+  wishes: {
+    name: 'Желание', icon: '✨', desc: 'Сбудется ли мечта',
+    subtitle: 'Что говорят карты о вашем заветном желании',
+    positions: [
+      { title: 'Ваше желание', focus: 'self' },
+      { title: 'Что помогает', focus: 'partner' },
+      { title: 'Что может помешать', focus: 'challenge' },
+      { title: 'Совет', focus: 'advice' },
+      { title: 'Сбудется ли', focus: 'outcome' }
+    ],
+    arena: 'wishes'
+  },
+  finance: {
+    name: 'Достаток', icon: '🐟', desc: 'Поток изобилия в жизни',
+    subtitle: 'Что говорят карты о вашем материальном благополучии',
+    positions: [
+      { title: 'Текущая ситуация', focus: 'present' },
+      { title: 'Источник изобилия', focus: 'partner' },
+      { title: 'Препятствие', focus: 'challenge' },
+      { title: 'Совет', focus: 'advice' },
+      { title: 'Исход', focus: 'outcome' }
+    ],
+    arena: 'finance'
+  },
+  spiritual: {
+    name: 'Душевный путь', icon: '⚜', desc: 'Песня вашей души',
+    subtitle: 'Что шепчут карты о вашей внутренней жизни',
+    positions: [
+      { title: 'Где вы сейчас', focus: 'present' },
+      { title: 'Урок души', focus: 'lesson' },
+      { title: 'Что мешает', focus: 'shadow' },
+      { title: 'Дар судьбы', focus: 'gift' },
+      { title: 'Призвание', focus: 'calling' }
+    ],
+    arena: 'spiritual'
+  }
+};
+
+const SPREADS = {
+  love: {
+    name: 'Любовь', icon: '♡', desc: 'Голос сердца сквозь звёзды',
+    subtitle: 'Что шепчут карты о ваших чувствах',
+    positions: [
+      { title: 'Вы в любви', focus: 'self' },
+      { title: 'Партнёр', focus: 'partner' },
+      { title: 'Связь между вами', focus: 'connection' },
+      { title: 'Препятствие', focus: 'challenge' },
+      { title: 'Куда ведёт сердце', focus: 'outcome' }
+    ],
+    arena: 'love'
+  },
+  health: {
+    name: 'Здоровье', icon: '☥', desc: 'Послание тела и духа',
+    subtitle: 'Что говорят карты о вашем благополучии',
+    positions: [
+      { title: 'Тело', focus: 'body' },
+      { title: 'Душа', focus: 'soul' },
+      { title: 'Корень состояния', focus: 'root' },
+      { title: 'Что исцеляет', focus: 'healing' },
+      { title: 'Куда ведёт путь', focus: 'outcome' }
+    ],
+    arena: 'health'
+  },
+  finance: {
+    name: 'Финансы', icon: '◈', desc: 'Поток изобилия и судьбы',
+    subtitle: 'Карты раскрывают путь вашего достатка',
+    positions: [
+      { title: 'Текущая ситуация', focus: 'present' },
+      { title: 'Скрытая сила', focus: 'hidden' },
+      { title: 'Препятствие', focus: 'challenge' },
+      { title: 'Совет вселенной', focus: 'advice' },
+      { title: 'Исход', focus: 'outcome' }
+    ],
+    arena: 'finance'
+  },
+  future: {
+    name: 'Будущее', icon: '☼', desc: 'Завеса завтрашнего дня',
+    subtitle: 'Карты приоткрывают то, что грядёт',
+    positions: [
+      { title: 'Прошлое', focus: 'past' },
+      { title: 'Настоящее', focus: 'present' },
+      { title: 'Скрытое', focus: 'hidden' },
+      { title: 'Ближайшее будущее', focus: 'near' },
+      { title: 'Дальнее будущее', focus: 'far' }
+    ],
+    arena: 'future'
+  },
+  career: {
+    name: 'Карьера', icon: '⚜', desc: 'Призвание и путь мастерства',
+    subtitle: 'Карты освещают вашу профессиональную тропу',
+    positions: [
+      { title: 'Где вы сейчас', focus: 'present' },
+      { title: 'Ваша сила', focus: 'strength' },
+      { title: 'Что мешает', focus: 'challenge' },
+      { title: 'Что нужно делать', focus: 'action' },
+      { title: 'Куда ведёт путь', focus: 'outcome' }
+    ],
+    arena: 'career'
+  },
+  spiritual: {
+    name: 'Духовный путь', icon: '☉', desc: 'Шёпот вечности в душе',
+    subtitle: 'Карты освещают вашу внутреннюю эволюцию',
+    positions: [
+      { title: 'Где вы сейчас', focus: 'present' },
+      { title: 'Урок души', focus: 'lesson' },
+      { title: 'Препятствие духа', focus: 'shadow' },
+      { title: 'Дар вселенной', focus: 'gift' },
+      { title: 'Призвание', focus: 'calling' }
+    ],
+    arena: 'spiritual'
+  }
+};
+
+const MAJOR_BY_ARENA = {
+  'fool': {
+    'love': 'вы стоите на пороге чего-то совершенно нового в любви. Это могут быть новые отношения или возрождение существующих. Сердце готово прыгнуть в неизвестность',
+    'health': 'тело жаждет лёгкости, движения и игры. Возможно, именно беззаботность станет для вас лекарством',
+    'finance': 'финансовая ситуация напоминает чистый лист, в нём много возможностей, но и много риска. Ваше дело, выбрать путь, не теряя осторожности',
+    'future': 'впереди вас ждёт совершенно новая глава, чистая страница, которую вы напишете сами',
+    'career': 'вы у самого начала пути, возможно, нового профессионального направления. Не бойтесь начать с азов',
+    'spiritual': 'душа учится главному, доверию к жизни. Идти, не зная, куда ведёт дорога, есть высшее духовное мужество'
+  },
+  'magician': {
+    'love': 'у вас есть всё, чтобы создать ту любовь, о которой вы мечтаете. Намерение и осознанность станут вашим главным магнитом',
+    'health': 'тело и разум составляют единый инструмент исцеления. Вы способны направить свою волю к восстановлению',
+    'finance': 'все ресурсы для финансового успеха в ваших руках. Талант плюс воля, и деньги непременно последуют',
+    'future': 'вы творите будущее каждой мыслью и каждым действием. Сейчас наступил мощный момент для проявления намерений',
+    'career': 'вы мастер своего дела. У вас есть все инструменты, осталось лишь применить их с верой в себя',
+    'spiritual': 'вы творец своей реальности. Используйте эту силу мудро, во благо себе и миру'
+  },
+  'priestess': {
+    'love': 'в этих отношениях есть тайна, что-то скрытое только начинает проявляться. Доверьтесь интуиции, она знает больше, чем разум',
+    'health': 'тело шлёт вам тонкие сигналы. Слушайте внутренний голос, он подскажет точнее любых анализов',
+    'finance': 'часть вашего дохода или возможностей сейчас скрыта от глаз. Действуйте по наитию, оно ведёт верно',
+    'future': 'будущее ещё за завесой, и не торопитесь срывать её. Дайте времени раскрыть истину постепенно',
+    'career': 'ваша истинная сила в скрытых талантах, которые вы, возможно, недооцениваете. Пора их раскрыть',
+    'spiritual': 'внутри вас живут древние знания. Прислушайтесь к ним, медитация и тишина откроют двери'
+  },
+  'empress': {
+    'love': 'наступает период расцвета чувств, возможно появление кого-то особенного или укрепление существующего союза',
+    'health': 'тело просит заботы, природы и красоты. Питание, отдых и эстетика станут вашими лекарями',
+    'finance': 'изобилие на пороге, особенно в творческих и созидательных проектах',
+    'future': 'грядёт время плодородия и расцвета, что-то родится в вашей жизни в прямом или переносном смысле',
+    'career': 'ваш творческий потенциал на пике. Создавайте, мир ждёт ваших творений',
+    'spiritual': 'вселенная дарит вам изобилие во всех формах. Любите себя так, как мать любит дитя'
+  },
+  'emperor': {
+    'love': 'отношения нуждаются в стабильности и опоре. Возможно, пришло время структурировать чувства или, наоборот, добавить мягкости',
+    'health': 'тело требует режима и дисциплины. Распорядок дня, это любовь к себе, выраженная в действии',
+    'finance': 'финансы требуют структуры и стратегии. Расчёт сейчас важнее импульса',
+    'future': 'впереди время стабильности и уверенного положения. Вы займёте прочное место в жизни',
+    'career': 'вы либо становитесь руководителем, либо нуждаетесь в структуре. Возьмите контроль в свои руки',
+    'spiritual': 'структурируйте свой внутренний мир. Дисциплина духа, это основа подлинной свободы'
+  },
+  'hierophant': {
+    'love': 'отношения движутся к серьёзному этапу, возможно, помолвка, брак или выход на новый уровень обязательств',
+    'health': 'обратитесь к проверенному специалисту, традиционная медицина даст лучший результат',
+    'finance': 'стабильная работа в традиционной структуре или обучение у мастера принесут свои плоды',
+    'future': 'впереди встреча с учителем или важная инициация. Готовьтесь учиться',
+    'career': 'настало время учиться или учить, признание в традиционной структуре уже близко',
+    'spiritual': 'найдите наставника. Не изобретайте велосипед, мудрость веков уже передана достойными мастерами'
+  },
+  'lovers': {
+    'love': 'это союз душ или важный сердечный выбор, судьбоносная встреча или решение, которое определит многое в вашей жизни',
+    'health': 'тело и душа должны выбрать единый путь, внутренний разлад истощает здоровье',
+    'finance': 'финансовый выбор или совместный проект. Сердце знает правильный путь, прислушайтесь к нему',
+    'future': 'грядёт союз или важный выбор, который откроет новую главу',
+    'career': 'выбор между двумя путями. Слушайте сердце, а не только расчёт',
+    'spiritual': 'единство, это выбор, который вы делаете каждый день. Любовь, главный путь души'
+  },
+  'chariot': {
+    'love': 'в отношениях намечается решительное движение вперёд, но не превращайте любовь в гонку',
+    'health': 'воля исцеляет, вы способны преодолеть любую слабость через силу духа',
+    'finance': 'прорыв близок, решительные действия принесут заслуженную победу',
+    'future': 'впереди победа и достижение цели. Все усилия окажутся не напрасны',
+    'career': 'прорывной проект и быстрое продвижение, главное оставаться сфокусированным',
+    'spiritual': 'воля, это инструмент, а не цель. Двигайтесь, но всегда помните, куда и зачем'
+  },
+  'strength': {
+    'love': 'у вас есть внутренняя сила любить мудро и нежно. Терпение укрепит любые отношения',
+    'health': 'у тела огромный ресурс восстановления. Будьте мягки, но настойчивы',
+    'finance': 'терпеливый, спокойный рост принесёт самый большой результат. Не торопитесь',
+    'future': 'впереди внутренняя победа над слабостями. Вы станете сильнее, чем когда-либо',
+    'career': 'ваша мощь в спокойной настойчивости. Никто не сравнится с вашей выдержкой',
+    'spiritual': 'истинная сила в нежности. Укрощайте страсти любовью, а не борьбой'
+  },
+  'hermit': {
+    'love': 'сейчас нужно уединение. Прежде чем найти другого, важно по-настоящему найти себя',
+    'health': 'восстановление приходит в тишине, покой и уединение и есть ваше лекарство',
+    'finance': 'уединитесь от шума и проанализируйте финансы, тишина даст редкую ясность',
+    'future': 'грядёт период внутреннего поиска, в тишине родится мудрость',
+    'career': 'время переосмыслить путь, уединение покажет истинное направление',
+    'spiritual': 'тишина учит больше любого шума. Войдите в неё, и внутри вы найдёте все ответы'
+  },
+  'wheel': {
+    'love': 'в отношениях намечается поворот, цикл меняется, готовьтесь к новому витку',
+    'health': 'здоровье циклично, возможен резкий поворот в ту или иную сторону, будьте внимательны',
+    'finance': 'финансовая ситуация меняется, старые источники уходят, открываются новые',
+    'future': 'колесо повернулось. Удача на вашей стороне, или же нужно научиться адаптироваться',
+    'career': 'карьера на повороте, цикл меняется, и гибкость станет вашей сильной стороной',
+    'spiritual': 'циклы неизбежны. Танцуйте с ними, не сопротивляйтесь течению жизни'
+  },
+  'justice': {
+    'love': 'честный разговор восстановит равновесие в отношениях. Карма любви работает безошибочно',
+    'health': 'тело отражает образ жизни. Что вкладываете, то и получаете обратно',
+    'finance': 'вы получаете именно по заслугам, старые ошибки требуют разрешения',
+    'future': 'грядёт справедливое разрешение, истина непременно восторжествует',
+    'career': 'вы получаете заслуженное. Будьте честны с собой относительно реальных результатов',
+    'spiritual': 'будьте по-настоящему честны с собой, это и есть начало подлинного пути'
+  },
+  'hanged': {
+    'love': 'отношения застряли в ожидании или жертвенности. Посмотрите на них под другим углом',
+    'health': 'тело замерло в ожидании. Смените угол зрения, в прямом или переносном смысле',
+    'finance': 'финансовый застой. Старые методы уже не работают, нужен совершенно новый взгляд',
+    'future': 'впереди пауза перед прозрением. Наберитесь терпения, ответ обязательно придёт',
+    'career': 'тупик кажется безнадёжным, но решение скрыто в неожиданном ракурсе',
+    'spiritual': 'жертва, это акт любви, а не страдания. Иногда сила рождается именно в неподвижности'
+  },
+  'death': {
+    'love': 'старая форма отношений уходит, но это не потеря, а освобождение для нового',
+    'health': 'старое уходит из тела, это очищение, а не катастрофа',
+    'finance': 'финансовая трансформация: что-то заканчивается, освобождая место новому',
+    'future': 'грядёт большая перемена, вы станете совершенно другим человеком',
+    'career': 'старая работа или роль уходит. Не сопротивляйтесь, это и есть путь развития',
+    'spiritual': 'отпускание, это высшая мудрость. Через смерть старого вы возрождаетесь обновлённым'
+  },
+  'temperance': {
+    'love': 'вы словно мастер баланса в чувствах, и эта алхимия делает ваш союз особенным',
+    'health': 'балансируйте всё, питание, сон, активность. Мера, это главное лекарство',
+    'finance': 'постепенный, гармоничный рост, без скачков, но уверенно и надёжно',
+    'future': 'грядёт период гармонии, внутренний и внешний баланс установятся одновременно',
+    'career': 'баланс между делом и жизнью, это редкое и ценное достижение, оно с вами',
+    'spiritual': 'алхимия противоположностей внутри вас. Мера во всём ведёт к свету'
+  },
+  'devil': {
+    'love': 'в отношениях есть зависимость, но цепи иллюзорны, и ключ всегда был в ваших руках',
+    'health': 'какая-то привычка истощает вас, найдите силы освободиться от неё',
+    'finance': 'долги или финансовая ловушка, свобода требует решимости и усилий',
+    'future': 'впереди испытание привязанностями, и его разрешение станет освобождением',
+    'career': 'привязка только к деньгам или статусу, это ловушка. Ищите истинный смысл работы',
+    'spiritual': 'ваши цепи, это ваши же привязанности. Ключ внутри. Свет осознания всегда освобождает'
+  },
+  'tower': {
+    'love': 'рушатся старые представления о любви, но на обломках вырастет нечто более правдивое',
+    'health': 'возможен внезапный кризис. Не игнорируйте сигналы тела, действуйте сейчас',
+    'finance': 'финансовый кризис или неожиданная потеря, но именно на обломках построится нечто прочное',
+    'future': 'грядут потрясения. То, что разрушится, было ложным с самого начала',
+    'career': 'карьерный кризис, готовьтесь к перестройке на совершенно новой основе',
+    'spiritual': 'ложные убеждения должны рухнуть. Не оплакивайте их, а освобождайтесь и идите дальше'
+  },
+  'star': {
+    'love': 'вы исполнены надежды и веры. Этот свет притягивает достойную, настоящую любовь',
+    'health': 'тело исцеляется, надежда оправдается, продолжайте идти вперёд',
+    'finance': 'вдохновляющий проект окажется прибыльным. Идите за своей звездой смело',
+    'future': 'впереди светлое будущее. Надежда не обманет',
+    'career': 'вы вдохновлены и идёте за призванием, ваш свет ярко сияет другим',
+    'spiritual': 'вера, это якорь души. Возвращайтесь к свету каждый раз, когда теряете путь'
+  },
+  'moon': {
+    'love': 'вы окутаны иллюзиями или сомнениями, не всё, что чувствуется, является правдой',
+    'health': 'симптомы могут быть обманчивы, нужна точная и взвешенная диагностика',
+    'finance': 'финансовая неясность. Не вкладывайтесь в то, чего вы до конца не понимаете',
+    'future': 'впереди туман неясности. Подождите рассвета, он непременно придёт',
+    'career': 'не всё, что кажется, является реальностью. Соберите больше информации перед решением',
+    'spiritual': 'не всё, что чувствуется, является правдой. Тени учат мудрости, а не пугают'
+  },
+  'sun': {
+    'love': 'вы сияете изнутри. Любите себя, и подлинная любовь придёт сама',
+    'health': 'здоровье на самом пике, наступил период расцвета и радости',
+    'finance': 'финансовый успех, деньги приходят легко и приносят радость',
+    'future': 'впереди светлая полоса жизни и яркого счастья',
+    'career': 'вы на пике успеха, признание и радость в работе ждут впереди',
+    'spiritual': 'радость, это ваше право и природа. Сияйте без оглядки'
+  },
+  'judgement': {
+    'love': 'переосмысление прошлого. Пришло время простить, себя или другого, и двинуться дальше',
+    'health': 'тело просит пробуждения, настал момент изменить образ жизни',
+    'finance': 'возрождение старого проекта или второй финансовый шанс',
+    'future': 'призвание зовёт, грядёт пробуждение к истинному пути',
+    'career': 'услышьте истинное призвание, возможно, пора менять направление',
+    'spiritual': 'зов души реален. Прислушайтесь, он зовёт вас домой'
+  },
+  'world': {
+    'love': 'вы достигли целостности внутри. Любовь придёт к тому, кто полон и без неё',
+    'health': 'полное здоровье или близость к нему, тело и душа в редком согласии',
+    'finance': 'цикл завершён, цель достигнута или совсем близка',
+    'future': 'впереди полное исполнение и завершение великого жизненного цикла',
+    'career': 'вы достигли вершины, пришло время плодов или начала нового цикла',
+    'spiritual': 'вы целостны и завершены. Не нужно ничего достигать, нужно лишь вспомнить, что вы уже это есть'
+  }
+};
+
+function interpretMinor(card, position, arena) {
+  const focus = position.focus;
+
+  // Удобные сокращения с правильными падежами
+  const meaning = card.meaning;            // полное значение карты, готовое предложение
+  const essence = card.essenceShort;       // короткая суть для подстановки в им. падеж
+  const sphereNom = card.sphereNom;        // им. падеж — «чувства, отношения и интуиция»
+  const sphereGen = card.sphereGen;        // род. падеж — «чувств, отношений и интуиции»
+  const sphereAcc = card.sphereAcc;        // вин. падеж — «чувства, отношения и интуицию»
+  const sphereIns = card.sphereIns;        // тв. падеж — «чувствами, отношениями и интуицией»
+  const elementGen = card.elementGen;      // «воды», «огня», «воздуха», «земли»
+  const energyShort = card.energyShort;    // «водная энергия» и т.д.
+
+  const templates = {
+    self: `Сейчас в вас живёт ${energyShort}, и она проявляется как ${essence}. Ваша внутренняя сфера, это ${sphereNom}.`,
+    partner: `Партнёр сейчас наполнен энергией ${elementGen}. Он проживает ${sphereAcc}, и это говорит о его глубокой связи с ${sphereIns}.`,
+    connection: `Ваш союз окрашен энергией ${elementGen}. ${meaning}`,
+    body: `Ваше тело откликается на стихию ${elementGen}. ${meaning}`,
+    soul: `Душа сейчас погружена в опыт, который связан со стихией ${elementGen}. ${meaning}`,
+    root: `В корне вашего состояния лежит то, что связано со сферой ${sphereGen}. ${meaning}`,
+    healing: `Исцеление приходит через ${sphereAcc}. ${meaning}`,
+    present: `${meaning} В вашей жизни сейчас особенно важна сфера ${sphereGen}.`,
+    past: `В прошлом вы прошли через опыт, связанный со сферой ${sphereGen}. ${meaning}`,
+    near: `В ближайшем будущем ${meaning.toLowerCase()} Сфера ${sphereGen} будет в фокусе вашего внимания.`,
+    far: `В дальнем будущем разворачивается история, связанная со сферой ${sphereGen}. ${meaning}`,
+    hidden: `Скрытая сила, действующая в вашей жизни, это ${essence}. Она работает через сферу ${sphereGen}.`,
+    challenge: `Препятствие проявляется через сферу ${sphereGen}. ${meaning}`,
+    advice: `Совет вселенной такой: воплотите ${essence} в действии. ${meaning}`,
+    action: `Действуйте, опираясь на ${sphereAcc}. ${meaning}`,
+    strength: `Ваша главная сила сейчас это ${essence}, и она проявляется через сферу ${sphereGen}.`,
+    outcome: `${meaning} Разрешение придёт через сферу ${sphereGen}.`,
+    lesson: `Урок души связан с тем, что несёт стихия ${elementGen}. ${meaning}`,
+    shadow: `Теневая часть проявляется как ${essence}. Осознать её можно, обратив внимание на сферу ${sphereGen}.`,
+    gift: `Дар вселенной для вас это ${essence}, и он раскрывается через сферу ${sphereGen}.`,
+    calling: `Ваше призвание связано со сферой ${sphereGen}. ${meaning}`
+  };
+
+  return templates[focus] || meaning;
+}
+
+function interpretCard(card, position, arena) {
+  if (card.suit === 'major') {
+    const arenaInterp = MAJOR_BY_ARENA[card.id];
+    if (arenaInterp && arenaInterp[arena]) return arenaInterp[arena];
+  }
+  return interpretMinor(card, position, arena);
+}
+
+function capitalize(text) {
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function buildReading(cards, spread) {
+  const arena = spread.arena;
+  const positions = spread.positions;
+
+  const arenaIntros = {
+    'love': 'Карты раскинулись перед вами, и узор сердца становится видимым. Ваше любовное полотно соткано из пяти нитей, и каждая говорит о своём.',
+    'health': 'Тело и душа разговаривают с вами через эти карты. Пять знамений сложились в единое послание о вашем благополучии.',
+    'finance': 'Поток изобилия имеет свой ритм, и сейчас он проявляется в пяти посланиях. Карты раскрывают, как течёт ваш достаток.',
+    'future': 'Время сплетается в единое полотно, прошлое отзывается в будущем, и пять карт показывают этот танец в его целостности.',
+    'career': 'Ваш профессиональный путь раскрывается перед вами, пять карт освещают разные его грани, складываясь в карту движения.',
+    'spiritual': 'Глубинные процессы души становятся видимы. Пять карт сложились в священный узор, говорящий о вашей внутренней эволюции.'
+  };
+
+  const majorCount = cards.filter(c => c.suit === 'major').length;
+  const suitCount = {
+    wands: cards.filter(c => c.suit === 'wands').length,
+    cups: cards.filter(c => c.suit === 'cups').length,
+    swords: cards.filter(c => c.suit === 'swords').length,
+    pentacles: cards.filter(c => c.suit === 'pentacles').length
+  };
+
+  let energyAnalysis = '';
+  if (majorCount >= 3) {
+    energyAnalysis = 'Прежде всего обратите внимание: <strong>в вашем раскладе три и более Старших Аркана</strong>, и это свидетельствует о судьбоносном периоде. Сейчас вы переживаете не повседневные события, а глубинные кармические процессы. Вселенная работает с вашей жизнью особенно плотно, и это редкое, ценное время. ';
+  } else if (majorCount === 2) {
+    energyAnalysis = 'В вашем раскладе явно ощущается рука судьбы, <strong>два Старших Аркана</strong> указывают на серьёзные жизненные темы, которые сейчас требуют вашего внимания и осознанности. ';
+  } else if (majorCount === 1) {
+    energyAnalysis = 'Главный фокус расклада, это повседневная реальность с одним судьбоносным акцентом. Это значит, что многое сейчас в ваших руках, но есть и то, что определяется свыше. ';
+  } else {
+    energyAnalysis = 'Расклад говорит о земных, повседневных процессах, без судьбоносной нагрузки. Это значит, что многое в ваших руках, и каждое решение творит результат. ';
+  }
+
+  const dominant = Object.entries(suitCount).sort((a,b) => b[1] - a[1])[0];
+  if (dominant[1] >= 2) {
+    const elementsText = {
+      wands: 'Преобладают <strong>Жезлы (огонь)</strong>, в вашей жизни сейчас высокий накал страсти, действия и творческой энергии. Время гореть и действовать, не оглядываясь. ',
+      cups: 'Преобладают <strong>Кубки (вода)</strong>, эмоции и чувства правят сейчас. Это период глубоких переживаний, отношений и интуитивных откровений. ',
+      swords: 'Преобладают <strong>Мечи (воздух)</strong>, на первом плане ум, истина и, возможно, конфликты или ясные решения. Время рассудка и честности. ',
+      pentacles: 'Преобладают <strong>Пентакли (земля)</strong>, материальные дела, тело и реальные результаты в фокусе. Время практических действий и заземления. '
+    };
+    energyAnalysis += elementsText[dominant[0]];
+  }
+
+  const connectors = ['Далее, ', 'И продолжая эту нить, ', 'Затем ', 'В свою очередь ', 'И наконец, '];
+
+  const positionIntros = {
+    love: ['Что касается вас в любви, ', 'Партнёр, в свою очередь, это ', 'А связь между вами раскрывается так: ', 'Препятствие на пути любви такое: ', 'И вот куда ведёт ваше сердце, '],
+    health: ['Тело сейчас говорит так: ', 'Душа отвечает по-своему: ', 'Корень состояния таков: ', 'Исцеление приходит так: ', 'А путь ведёт сюда: '],
+    finance: ['Текущая финансовая ситуация говорит: ', 'Скрытая сила, о которой вы могли не знать, это ', 'На пути встречается препятствие: ', 'Совет вселенной таков: ', 'И исход складывается так: '],
+    future: ['В прошлом проявлялась ', 'В настоящем моменте вы видите ', 'Скрытые силы шепчут: ', 'Ближайшее будущее обещает: ', 'А в дальнем будущем '],
+    career: ['Где вы находитесь сейчас в работе: ', 'Ваша главная сила сейчас, это ', 'Препятствие на пути такое: ', 'А действовать нужно так: ', 'И путь ведёт к этому: '],
+    spiritual: ['На духовном пути сейчас вы видите ', 'Душа учит вас тому, что ', 'Препятствие духа такое: ', 'Дар вселенной для вас, это ', 'А ваше призвание, это ']
+  };
+
+  let narrative = '';
+  cards.forEach((card, idx) => {
+    const interp = interpretCard(card, positions[idx], arena);
+    const intro = positionIntros[arena][idx];
+    const cardMark = `<span class="card-mark">${card.symbol} ${card.name}</span>`;
+
+    if (idx === 0) {
+      narrative += `${intro}карта <strong>${cardMark}</strong>. ${capitalize(interp)}. `;
+    } else {
+      const conn = connectors[idx - 1];
+      narrative += `${conn}${intro.toLowerCase()}<strong>${cardMark}</strong>. ${capitalize(interp)}. `;
+    }
+  });
+
+  const first = cards[0];
+  const last = cards[4];
+
+  let dynamicLine = '';
+  if (first.suit === 'major' && last.suit === 'major') {
+    dynamicLine = `Расклад начинается и завершается мощными арканами, <strong>${first.name}</strong> и <strong>${last.name}</strong>. Это говорит о завершении значимого жизненного цикла и начале нового. `;
+  } else if (last.suit === 'major') {
+    dynamicLine = `Расклад движется к мощному финалу, <strong>${last.name}</strong> венчает картину. Впереди вас ждёт важная веха. `;
+  } else if (first.suit === 'major') {
+    dynamicLine = `Расклад начинается с глубокой ноты, <strong>${first.name}</strong>, которая постепенно разворачивается в практическое действие. `;
+  }
+
+  const aces = cards.filter(c => c.num === 'Туз').length;
+  const tens = cards.filter(c => c.num === '10').length;
+  const courts = cards.filter(c => ['Паж', 'Рыцарь', 'Королева', 'Король'].includes(c.num)).length;
+
+  let patternLine = '';
+  if (aces >= 2) {
+    patternLine = 'Несколько <strong>Тузов</strong> в раскладе говорят о множественных новых начинаниях. Открывается сразу несколько дверей одновременно. ';
+  } else if (tens >= 2) {
+    patternLine = 'Несколько <strong>Десяток</strong> указывают на завершение нескольких циклов сразу. Пришло время расставлять точки. ';
+  } else if (courts >= 2) {
+    patternLine = 'Сильное влияние других людей. В вашей жизни сейчас много значимых персон, и они играют ключевые роли. ';
+  }
+
+  const conclusions = {
+    'love': {
+      base: 'Ваш расклад говорит о любви как о живом процессе, а не статичной картине.',
+      advice: 'Слушайте сердце, но не закрывайте глаза, настоящая любовь требует одновременно отдачи и трезвости.',
+      blessing: 'Доверьтесь своим истинным чувствам, звёзды всегда сопровождают любящих.'
+    },
+    'health': {
+      base: 'Ваш расклад показывает глубокую связь между телом, душой и образом жизни.',
+      advice: 'Тело, это храм души, и забота о нём есть высшая форма самоуважения.',
+      blessing: 'Слушайте сигналы своего организма с любовью и терпением, исцеление всегда возможно.'
+    },
+    'finance': {
+      base: 'Ваш расклад раскрывает не просто деньги, а ваши отношения с потоком изобилия.',
+      advice: 'Деньги любят ясность и честность. Будьте искренни с собой относительно своих финансов.',
+      blessing: 'Вселенная щедра к тем, кто открыт принимать с благодарностью и отдавать с радостью.'
+    },
+    'future': {
+      base: 'Ваш расклад показывает не приговор, а наиболее вероятный путь развития событий.',
+      advice: 'Будущее это не предопределение, а танец, в котором каждое осознанное действие меняет узор.',
+      blessing: 'Творите своё завтра с верой и осознанностью, вы соавтор собственной судьбы.'
+    },
+    'career': {
+      base: 'Ваш расклад говорит о профессиональном пути как о пространстве самореализации.',
+      advice: 'Истинное призвание не противоречит благополучию, оно его источник.',
+      blessing: 'Идите туда, где ваша душа поёт, а руки умеют, там вас ждёт настоящий успех.'
+    },
+    'spiritual': {
+      base: 'Ваш расклад освещает глубинный путь души и её эволюцию.',
+      advice: 'Каждый опыт, даже трудный, это рост. Доверьтесь пути, и он раскроется шаг за шагом.',
+      blessing: 'Вы пришли в этот мир ради своей души, она всегда знает, куда вести вас дальше.'
+    }
+  };
+
+  const conc = conclusions[arena];
+
+  return {
+    intro: arenaIntros[arena],
+    energy: energyAnalysis,
+    narrative: narrative,
+    dynamic: dynamicLine + patternLine,
+    conclusion: `<strong>${conc.base}</strong> ${conc.advice} <em>${conc.blessing}</em>`
+  };
+}
+
+let currentSpread = null;
+let currentCards = [];
+
+function renderSpreadSelection(spreadsObj) {
+  const grid = document.getElementById('spreads-grid');
+  grid.innerHTML = '';
+  Object.entries(spreadsObj).forEach(([key, spread]) => {
+    const card = document.createElement('div');
+    card.className = 'spread-card';
+    card.innerHTML = `
+      <div class="spread-icon">${spread.icon}</div>
+      <div class="spread-name">${spread.name}</div>
+      <div class="spread-desc">${spread.desc}</div>
+    `;
+    card.addEventListener('click', () => selectSpread(key));
+    grid.appendChild(card);
+  });
+}
+
+function selectSpread(key) {
+  currentSpread = key;
+  const spreadsObj = currentSystem === 'lenormand' ? LENORMAND_SPREADS : SPREADS;
+  const spread = spreadsObj[key];
+
+  document.getElementById('spread-selection').classList.add('hidden');
+  document.getElementById('reading-area').classList.add('active');
+  document.getElementById('reading-title').textContent = spread.name;
+  document.getElementById('reading-subtitle').textContent = spread.subtitle;
+
+  currentCards = drawCards(5);
+  renderCards(spread);
+
+  document.getElementById('reading-output').innerHTML = '';
+  document.getElementById('reveal-btn').classList.remove('hidden');
+  document.getElementById('reveal-btn').textContent = 'Открыть карты';
+  document.getElementById('new-reading-btn').classList.add('hidden');
+  document.getElementById('back-btn').classList.remove('hidden');
+
+  window.scrollTo({ top: document.getElementById('reading-area').offsetTop - 40, behavior: 'smooth' });
+}
+
+function drawCards(n) {
+  const sourceDeck = currentSystem === 'lenormand' ? LENORMAND : DECK;
+  const shuffled = [...sourceDeck];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, n);
+}
+
+function renderCards(spread) {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+  const isLenormand = currentSystem === 'lenormand';
+
+  spread.positions.forEach((position, idx) => {
+    const card = currentCards[idx];
+    const slot = document.createElement('div');
+    slot.className = 'card-slot';
+
+    const suitClass = isLenormand ? '' : `suit-${card.suit}`;
+    const cardClass = isLenormand ? 'card lenormand' : 'card';
+    const subText = isLenormand
+      ? card.meaning
+      : (card.suit === 'major' ? 'Старший Аркан' : card.suitName);
+    const numText = isLenormand ? card.id : card.num;
+
+    slot.innerHTML = `
+      <div class="card-position">${position.title}</div>
+      <div class="${cardClass}" data-idx="${idx}">
+        <div class="card-face card-back">
+          <div class="card-back-pattern"></div>
+          <svg class="card-back-sigil" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.7"/>
+            <circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.5"/>
+            <polygon points="50,15 58,42 85,42 63,58 71,85 50,68 29,85 37,58 15,42 42,42" fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.8"/>
+            <circle cx="50" cy="50" r="3" fill="currentColor" opacity="0.9"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="0.3" opacity="0.3"/>
+          </svg>
+          <div class="card-back-frame"></div>
+        </div>
+        <div class="card-face card-front ${suitClass}">
+          <div class="card-frame">
+            <div class="card-number">${numText}</div>
+            <div class="card-symbol">${card.symbol}</div>
+            <div class="card-name">${card.name}</div>
+            <div class="card-number" style="opacity:0.65; font-style:italic; font-size:9px">${subText}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    container.appendChild(slot);
+  });
+}
+
+function revealCards() {
+  const cards = document.querySelectorAll('.card');
+  const container = document.getElementById('cards-container');
+
+  container.classList.add('shuffling');
+
+  setTimeout(() => {
+    container.classList.remove('shuffling');
+
+    cards.forEach((card, idx) => {
+      setTimeout(() => {
+        card.classList.add('flipped');
+        spawnSparkles(card);
+      }, idx * 500);
+    });
+
+    setTimeout(() => {
+      showReading();
+      document.getElementById('reveal-btn').classList.add('hidden');
+      document.getElementById('new-reading-btn').classList.remove('hidden');
+      document.getElementById('back-btn').classList.remove('hidden');
+    }, cards.length * 500 + 600);
+  }, 600);
+}
+
+function spawnSparkles(element) {
+  const rect = element.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  for (let i = 0; i < 12; i++) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    sparkle.style.left = cx + 'px';
+    sparkle.style.top = cy + 'px';
+    sparkle.style.position = 'fixed';
+    const angle = (Math.PI * 2 * i) / 12;
+    const dist = 80 + Math.random() * 60;
+    sparkle.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    sparkle.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    document.body.appendChild(sparkle);
+    setTimeout(() => sparkle.remove(), 1500);
+  }
+}
+
+function showReading() {
+  const isLenormand = currentSystem === 'lenormand';
+  const spreadsObj = isLenormand ? LENORMAND_SPREADS : SPREADS;
+  const spread = spreadsObj[currentSpread];
+  const reading = isLenormand
+    ? buildLenormandReading(currentCards, spread)
+    : buildReading(currentCards, spread);
+  const container = document.getElementById('reading-output');
+
+  const titleText = isLenormand ? 'Нежное послание' : 'Послание звёзд';
+  const sectionTitle = isLenormand ? 'Толкование' : 'Толкование расклада';
+
+  if (isLenormand) {
+    container.innerHTML = `
+      <div class="reading-scroll lenormand-scroll">
+        <h3 class="scroll-section-title-center">${titleText}</h3>
+        <div class="scroll-divider">❀ ⋅ ❀ ⋅ ❀</div>
+
+        <div class="scroll-section">
+          <p class="scroll-text">${reading.intro}</p>
+        </div>
+
+        <div class="scroll-section">
+          <h4 class="scroll-section-title">${sectionTitle}</h4>
+          <p class="scroll-text">${reading.narrative}</p>
+          ${reading.pattern ? `<p class="scroll-text" style="margin-top: 18px;">${reading.pattern}</p>` : ''}
+        </div>
+
+        <div class="conclusion-block">
+          <h4 class="scroll-section-title-center" style="font-size: 24px;">Вывод</h4>
+          <div class="scroll-divider">❀</div>
+          <p class="conclusion-text">${reading.conclusion}</p>
+        </div>
+      </div>
+    `;
+  } else {
+    container.innerHTML = `
+      <div class="reading-scroll">
+        <h3 class="scroll-section-title-center">${titleText}</h3>
+        <div class="scroll-divider">✦ ⋅ ✦ ⋅ ✦</div>
+
+        <div class="scroll-section">
+          <p class="scroll-text">${reading.intro}</p>
+          <p class="scroll-text">${reading.energy}</p>
+        </div>
+
+        <div class="scroll-section">
+          <h4 class="scroll-section-title">${sectionTitle}</h4>
+          <p class="scroll-text">${reading.narrative}</p>
+          ${reading.dynamic ? `<p class="scroll-text" style="margin-top: 18px;">${reading.dynamic}</p>` : ''}
+        </div>
+
+        <div class="conclusion-block">
+          <h4 class="scroll-section-title-center" style="font-size: 24px;">Вывод</h4>
+          <div class="scroll-divider">✦</div>
+          <p class="conclusion-text">${reading.conclusion}</p>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function newReading() { selectSpread(currentSpread); }
+
+function backToSelection() {
+  document.getElementById('reading-area').classList.remove('active');
+  document.getElementById('spread-selection').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════
+// ПЕРЕКЛЮЧЕНИЕ МЕЖДУ СИСТЕМАМИ
+// ═══════════════════════════════════════════════════════
+let currentSystem = 'tarot'; // 'tarot' | 'lenormand' | 'dailycard'
+
+function hideAllSections() {
+  document.getElementById('system-selection').classList.add('hidden');
+  document.getElementById('spread-selection').classList.add('hidden');
+  document.getElementById('reading-area').classList.remove('active');
+  document.getElementById('daily-area').classList.add('hidden');
+  document.getElementById('daily-area').classList.remove('active');
+}
+
+function showSystemSelection() {
+  hideAllSections();
+  document.getElementById('system-selection').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectSystem(system) {
+  currentSystem = system;
+  hideAllSections();
+
+  if (system === 'tarot') {
+    document.getElementById('spread-section-title').textContent = 'Расклад Таро';
+    document.getElementById('spread-section-subtitle').textContent = 'Шесть путей откровения · 5 карт в каждом раскладе';
+    renderSpreadSelection(SPREADS);
+    document.getElementById('spread-selection').classList.remove('hidden');
+  } else if (system === 'lenormand') {
+    document.getElementById('spread-section-title').textContent = 'Расклад Ленорман';
+    document.getElementById('spread-section-subtitle').textContent = 'Шесть нежных дорог сердца · 5 карт в каждом раскладе';
+    renderSpreadSelection(LENORMAND_SPREADS);
+    document.getElementById('spread-selection').classList.remove('hidden');
+  } else if (system === 'dailycard') {
+    showDailyCard();
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════
+// КАРТА ДНЯ С АСТРОЛОГИЕЙ
+// ═══════════════════════════════════════════════════════
+
+// Простой расчёт планетарных позиций для текущего дня
+function getAstrologicalContext() {
+  const now = new Date();
+  const day = now.getDate();
+  const month = now.getMonth(); // 0-11
+  const dayOfWeek = now.getDay(); // 0-6 (0=воскресенье)
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+
+  // Знак зодиака на текущую дату (упрощённо)
+  const zodiacRanges = [
+    { name: 'Козерога', endMonth: 0, endDay: 19, element: 'земли', quality: 'практичности' },
+    { name: 'Водолея', endMonth: 1, endDay: 18, element: 'воздуха', quality: 'свободы' },
+    { name: 'Рыб', endMonth: 2, endDay: 20, element: 'воды', quality: 'мечты' },
+    { name: 'Овна', endMonth: 3, endDay: 19, element: 'огня', quality: 'смелости' },
+    { name: 'Тельца', endMonth: 4, endDay: 20, element: 'земли', quality: 'устойчивости' },
+    { name: 'Близнецов', endMonth: 5, endDay: 20, element: 'воздуха', quality: 'любопытства' },
+    { name: 'Рака', endMonth: 6, endDay: 22, element: 'воды', quality: 'нежности' },
+    { name: 'Льва', endMonth: 7, endDay: 22, element: 'огня', quality: 'гордости' },
+    { name: 'Девы', endMonth: 8, endDay: 22, element: 'земли', quality: 'порядка' },
+    { name: 'Весов', endMonth: 9, endDay: 22, element: 'воздуха', quality: 'гармонии' },
+    { name: 'Скорпиона', endMonth: 10, endDay: 21, element: 'воды', quality: 'глубины' },
+    { name: 'Стрельца', endMonth: 11, endDay: 21, element: 'огня', quality: 'устремлённости' },
+    { name: 'Козерога', endMonth: 11, endDay: 31, element: 'земли', quality: 'практичности' }
+  ];
+
+  let zodiac = zodiacRanges[zodiacRanges.length - 1];
+  for (const z of zodiacRanges) {
+    if (month < z.endMonth || (month === z.endMonth && day <= z.endDay)) {
+      zodiac = z;
+      break;
+    }
+  }
+
+  // Планета-покровитель дня недели
+  const planets = [
+    { name: 'Солнце', day: 'воскресенье', energy: 'света, радости и творческого вдохновения', advice: 'позвольте себе сиять' },
+    { name: 'Луна', day: 'понедельник', energy: 'эмоций, интуиции и мягкости', advice: 'прислушайтесь к чувствам' },
+    { name: 'Марс', day: 'вторник', energy: 'действия, страсти и решимости', advice: 'двигайтесь к цели смело' },
+    { name: 'Меркурий', day: 'среда', energy: 'мысли, общения и быстрых решений', advice: 'ясность речи откроет двери' },
+    { name: 'Юпитер', day: 'четверг', energy: 'роста, удачи и расширения возможностей', advice: 'мыслите масштабно' },
+    { name: 'Венера', day: 'пятница', energy: 'любви, красоты и наслаждения', advice: 'окружите себя прекрасным' },
+    { name: 'Сатурн', day: 'суббота', energy: 'дисциплины, мудрости и зрелости', advice: 'сосредоточьтесь на главном' }
+  ];
+
+  const planet = planets[dayOfWeek];
+
+  // Фаза Луны (упрощённый расчёт)
+  // Эталонное новолуние: 6 января 2000, 18:14 UTC
+  const newMoonRef = new Date(2000, 0, 6, 18, 14);
+  const lunarCycle = 29.53059;
+  const daysSinceNewMoon = (now - newMoonRef) / (1000 * 60 * 60 * 24);
+  const phase = ((daysSinceNewMoon % lunarCycle) + lunarCycle) % lunarCycle;
+
+  let moonPhase;
+  if (phase < 1.84) moonPhase = { name: 'Новолуние', desc: 'время начинаний и загадывания желаний', symbol: '🌑' };
+  else if (phase < 5.53) moonPhase = { name: 'Молодая Луна', desc: 'благоприятное время для действий и роста', symbol: '🌒' };
+  else if (phase < 9.22) moonPhase = { name: 'Первая четверть', desc: 'время преодоления препятствий', symbol: '🌓' };
+  else if (phase < 12.91) moonPhase = { name: 'Растущая Луна', desc: 'фаза накопления силы и устремления к целям', symbol: '🌔' };
+  else if (phase < 16.61) moonPhase = { name: 'Полнолуние', desc: 'кульминация энергии, время раскрытия', symbol: '🌕' };
+  else if (phase < 20.30) moonPhase = { name: 'Убывающая Луна', desc: 'время отпускания и завершений', symbol: '🌖' };
+  else if (phase < 23.99) moonPhase = { name: 'Последняя четверть', desc: 'время очищения и анализа', symbol: '🌗' };
+  else moonPhase = { name: 'Старая Луна', desc: 'время покоя перед новым началом', symbol: '🌘' };
+
+  return {
+    date: now,
+    zodiac: zodiac,
+    planet: planet,
+    moonPhase: moonPhase,
+    dayOfYear: dayOfYear
+  };
+}
+
+let currentDailyCard = null;
+
+function showDailyCard() {
+  document.getElementById('daily-area').classList.remove('hidden');
+  document.getElementById('daily-area').classList.add('active');
+
+  // Случайная карта из колоды Таро
+  const idx = Math.floor(Math.random() * DECK.length);
+  currentDailyCard = DECK[idx];
+
+  const astro = getAstrologicalContext();
+  const dateStr = astro.date.toLocaleDateString('ru-RU', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+  document.getElementById('daily-date').textContent = dateStr;
+
+  renderDailyCard();
+  document.getElementById('daily-output').innerHTML = '';
+  document.getElementById('reveal-daily-btn').classList.remove('hidden');
+}
+
+function renderDailyCard() {
+  const card = currentDailyCard;
+  const container = document.getElementById('daily-card-container');
+  container.innerHTML = `
+    <div class="card daily" id="daily-card-elem">
+      <div class="card-face card-back">
+        <div class="card-back-pattern"></div>
+        <svg class="card-back-sigil" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(244,217,118,0.8)" stroke-width="0.5"/>
+          <circle cx="50" cy="50" r="35" fill="none" stroke="rgba(244,217,118,0.6)" stroke-width="0.5"/>
+          <circle cx="50" cy="50" r="25" fill="none" stroke="rgba(244,217,118,0.4)" stroke-width="0.5"/>
+          <polygon points="50,15 58,42 85,42 63,58 71,85 50,68 29,85 37,58 15,42 42,42" fill="none" stroke="rgba(244,217,118,0.9)" stroke-width="0.8"/>
+          <circle cx="50" cy="50" r="4" fill="rgba(244,217,118,1)"/>
+        </svg>
+        <div class="card-back-frame"></div>
+      </div>
+      <div class="card-face card-front suit-${card.suit}">
+        <div class="card-frame">
+          <div class="card-number">${card.num}</div>
+          <div class="card-symbol">${card.symbol}</div>
+          <div class="card-name">${card.name}</div>
+          <div class="card-number" style="opacity:0.65; font-style:italic">${card.suit === 'major' ? 'Старший Аркан' : card.suitName}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function revealDailyCard() {
+  const cardElem = document.getElementById('daily-card-elem');
+  cardElem.classList.add('flipped');
+  spawnSparkles(cardElem);
+
+  setTimeout(() => {
+    showDailyReading();
+    document.getElementById('reveal-daily-btn').classList.add('hidden');
+  }, 1300);
+}
+
+function showDailyReading() {
+  const card = currentDailyCard;
+  const astro = getAstrologicalContext();
+
+  // Получаем толкование карты
+  let cardMeaning;
+  if (card.suit === 'major') {
+    // Для старших Арканов берём универсальное «общее» из значений по аренам
+    const arenas = MAJOR_BY_ARENA[card.id];
+    cardMeaning = arenas ? `${capitalize(arenas.spiritual)}.` : 'Карта несёт глубокое послание.';
+  } else {
+    cardMeaning = card.meaning;
+  }
+
+  // Связь карты с астрологическим контекстом
+  let astroConnection;
+  if (card.suit === 'wands' || (card.suit === 'major' && ['magician', 'chariot', 'strength', 'sun'].includes(card.id))) {
+    astroConnection = `Стихия огня сегодняшней карты резонирует с энергией ${astro.planet.name}, что усиливает её действие.`;
+  } else if (card.suit === 'cups' || (card.suit === 'major' && ['priestess', 'empress', 'moon', 'star'].includes(card.id))) {
+    astroConnection = `Водная природа карты тонко переплетается с энергией ${astro.planet.name} и фазой Луны.`;
+  } else if (card.suit === 'swords' || (card.suit === 'major' && ['lovers', 'justice', 'tower'].includes(card.id))) {
+    astroConnection = `Воздушная энергия карты соединяется с потоком ${astro.planet.name}, обостряя ясность мысли.`;
+  } else if (card.suit === 'pentacles' || (card.suit === 'major' && ['emperor', 'hierophant', 'devil', 'world'].includes(card.id))) {
+    astroConnection = `Земная основа карты находит отклик в энергии ${astro.planet.name}, давая опору в реальном.`;
+  } else {
+    astroConnection = `Энергия карты переплетается с космическим потоком сегодняшнего дня.`;
+  }
+
+  const container = document.getElementById('daily-output');
+  container.innerHTML = `
+    <div class="reading-scroll daily-scroll">
+      <h3 class="scroll-section-title-center">Послание дня</h3>
+      <div class="scroll-divider">✦ ⋅ ✦ ⋅ ✦</div>
+
+      <div class="astro-context">
+        <div class="astro-row">
+          <span class="astro-label">Знак Солнца</span>
+          <span class="astro-value">в знаке ${astro.zodiac.name}</span>
+        </div>
+        <div class="astro-row">
+          <span class="astro-label">День под покровительством</span>
+          <span class="astro-value">${astro.planet.name}</span>
+        </div>
+        <div class="astro-row">
+          <span class="astro-label">Фаза Луны</span>
+          <span class="astro-value">${astro.moonPhase.symbol} ${astro.moonPhase.name}</span>
+        </div>
+      </div>
+
+      <div class="scroll-section">
+        <h4 class="scroll-section-title">Карта дня</h4>
+        <p class="scroll-text">Сегодня ваше внимание направляет карта <span class="card-mark">${card.symbol} ${card.name}</span>. ${cardMeaning}</p>
+      </div>
+
+      <div class="scroll-section">
+        <h4 class="scroll-section-title">Космический контекст</h4>
+        <p class="scroll-text">Сегодня Солнце находится в знаке <strong>${astro.zodiac.name}</strong>, и это придаёт дню оттенок ${astro.zodiac.quality} стихии ${astro.zodiac.element}. День проходит под покровительством <strong>${astro.planet.name}</strong>, что дарит атмосферу ${astro.planet.energy}.</p>
+        <p class="scroll-text">Луна сейчас в фазе <strong>${astro.moonPhase.name}</strong>, а это ${astro.moonPhase.desc}. ${astroConnection}</p>
+      </div>
+
+      <div class="scroll-section">
+        <h4 class="scroll-section-title">Что вас ждёт сегодня</h4>
+        <p class="scroll-text">${getDailyForecast(card, astro)}</p>
+      </div>
+
+      <div class="conclusion-block">
+        <h4 class="scroll-section-title-center" style="font-size: 24px;">Совет дня</h4>
+        <div class="scroll-divider">✦</div>
+        <p class="conclusion-text">${getDailyAdvice(card, astro)}</p>
+      </div>
+    </div>
+  `;
+}
+
+function getDailyForecast(card, astro) {
+  const cardKey = card.suit === 'major' ? card.id : card.suit;
+  const planetEnergy = astro.planet.energy;
+
+  const forecasts = {
+    fool: `Сегодня день открытий и неожиданных поворотов. Вселенная приглашает вас попробовать что-то новое, и энергия ${astro.planet.name} поддерживает любые свежие начинания. Не бойтесь шагнуть в неизвестность, день благоволит смелым.`,
+    magician: `Сегодня вы способны воплотить любое намерение в реальность. Энергия ${astro.planet.name} усиливает вашу личную силу, и всё, к чему вы прикоснётесь, обретает форму. Используйте этот день, чтобы запустить важное дело.`,
+    priestess: `День тонких знаков и интуитивных откровений. Слушайте внутренний голос, особенно в часы после заката. Под влиянием ${astro.planet.name} ваша связь с глубинной мудростью усиливается.`,
+    empress: `Сегодня день нежности, заботы и творческого изобилия. Окружите себя красотой, побалуйте себя чем-то приятным. Энергия ${astro.planet.name} питает вашу женственную силу и творческие порывы.`,
+    emperor: `День структуры, ответственности и важных решений. Сегодня вы способны навести порядок в любой сфере. Под покровительством ${astro.planet.name} ваша воля особенно крепка.`,
+    hierophant: `Сегодня хороший день для обучения, наставничества и духовных практик. Кто-то старший или мудрый может дать вам важный совет. ${astro.planet.name} помогает учиться и принимать традиционные знания.`,
+    lovers: `День важных встреч и сердечных решений. Возможна судьбоносная встреча или необходимость сделать выбор сердцем. Энергия ${astro.planet.name} усиливает все отношения сегодня.`,
+    chariot: `Сегодня день решительных действий и движения вперёд. Любое препятствие можно преодолеть силой воли. ${astro.planet.name} дарит вам напор и уверенность в своих силах.`,
+    strength: `День внутренней силы, проявленной через нежность. Вы способны мягко справиться с тем, что других сломило бы. Под влиянием ${astro.planet.name} ваша душевная стойкость на высоте.`,
+    hermit: `Сегодня день тишины и внутреннего поиска. Найдите время побыть наедине с собой, в уединении придёт важное прозрение. ${astro.planet.name} поддерживает медитативное состояние.`,
+    wheel: `День перемен и неожиданных поворотов судьбы. Будьте готовы к тому, что всё может измениться в одно мгновение. Энергия ${astro.planet.name} приносит динамику в любую ситуацию.`,
+    justice: `Сегодня день истины, честности и кармических разрешений. Что было задолжано вам или вами, обретёт справедливое завершение. ${astro.planet.name} поддерживает всё честное и прозрачное.`,
+    hanged: `День паузы, нового угла зрения и принятия. Не торопитесь, важные ответы придут через тишину и созерцание. ${astro.planet.name} помогает увидеть мир иначе.`,
+    death: `Сегодня день завершений и трансформаций. Что-то старое уходит, освобождая место новому. Не бойтесь этих изменений, они ведут к обновлению. ${astro.planet.name} мягко поддерживает переход.`,
+    temperance: `День гармонии, баланса и алхимии противоположностей. Сегодня вы способны примирить любые крайности. Под влиянием ${astro.planet.name} мир обретает целостность.`,
+    devil: `Сегодня важно осознать свои привязанности и зависимости. Что-то держит вас, но цепи иллюзорны. ${astro.planet.name} помогает увидеть теневые стороны и обрести свободу.`,
+    tower: `День внезапных озарений и крушения иллюзий. То, что было ложным, рассыпается, освобождая путь правде. ${astro.planet.name} приносит ясность через перемены.`,
+    star: `Самый светлый день надежды и вдохновения. Ваши мечты ближе, чем кажутся, доверьтесь свету. Энергия ${astro.planet.name} наполняет душу верой.`,
+    moon: `День таинственный, полный снов и подсознательных посланий. Записывайте свои сны, в них есть подсказки. ${astro.planet.name} усиливает интуицию и мистические переживания.`,
+    sun: `Самый радостный и ясный день. Сияйте, делитесь теплом, радуйтесь жизни. ${astro.planet.name} дарит вам уверенность и счастье.`,
+    judgement: `День пробуждения и услышанного зова. Возможно, вы услышите своё истинное призвание сегодня. Под влиянием ${astro.planet.name} происходят возрождения и вторые шансы.`,
+    world: `День завершения цикла и обретения целостности. Что-то важное доходит до своего логичного финала. ${astro.planet.name} благословляет ваше достижение.`,
+    wands: `Сегодня день огненной энергии, страсти и активного действия. Под покровительством ${astro.planet.name} ваша творческая воля усиливается, и вы способны зажечь любое начинание. Действуйте смело, не оглядываясь.`,
+    cups: `День чувств, отношений и интуитивных откровений. Энергия ${astro.planet.name} углубляет ваши эмоциональные переживания. Будьте открыты любви во всех её формах.`,
+    swords: `День ясности мысли и важных решений. Энергия ${astro.planet.name} обостряет ваш ум, помогая видеть истину. Избегайте поспешных слов, но не бойтесь говорить правду.`,
+    pentacles: `День практических дел и материальных результатов. Под влиянием ${astro.planet.name} вы способны достигать конкретных целей. Сосредоточьтесь на том, что можно потрогать руками.`
+  };
+
+  return forecasts[cardKey] || `Сегодня день под особым влиянием карты ${card.name}. Энергия ${astro.planet.name} усиливает её послание. Будьте внимательны к знакам вселенной.`;
+}
+
+function getDailyAdvice(card, astro) {
+  const cardKey = card.suit === 'major' ? card.id : card.suit;
+  const moonAdvice = astro.moonPhase.desc;
+
+  const advices = {
+    fool: `Сегодня <strong>отпустите страх неизвестного</strong>. ${capitalize(astro.planet.advice)}, и пусть приключение случится. <em>${capitalize(moonAdvice)}.</em>`,
+    magician: `Сегодня <strong>сформулируйте намерение чётко и ясно</strong>. ${capitalize(astro.planet.advice)}, и используйте свою силу мудро. <em>${capitalize(moonAdvice)}.</em>`,
+    priestess: `Сегодня <strong>прислушайтесь к интуиции</strong>. ${capitalize(astro.planet.advice)}, и доверьтесь тому, что чувствуете. <em>${capitalize(moonAdvice)}.</em>`,
+    empress: `Сегодня <strong>окружите себя красотой и любовью</strong>. ${capitalize(astro.planet.advice)}, и будьте нежны к себе. <em>${capitalize(moonAdvice)}.</em>`,
+    emperor: `Сегодня <strong>примите ответственность за свою жизнь</strong>. ${capitalize(astro.planet.advice)}, и стройте структуру там, где её не хватает. <em>${capitalize(moonAdvice)}.</em>`,
+    hierophant: `Сегодня <strong>учитесь у мудрых</strong>. ${capitalize(astro.planet.advice)}, и не бойтесь следовать традициям. <em>${capitalize(moonAdvice)}.</em>`,
+    lovers: `Сегодня <strong>выбирайте сердцем</strong>. ${capitalize(astro.planet.advice)}, и доверьтесь любви. <em>${capitalize(moonAdvice)}.</em>`,
+    chariot: `Сегодня <strong>двигайтесь к цели решительно</strong>. ${capitalize(astro.planet.advice)}, и не сворачивайте с пути. <em>${capitalize(moonAdvice)}.</em>`,
+    strength: `Сегодня <strong>будьте сильны через нежность</strong>. ${capitalize(astro.planet.advice)}, и укрощайте трудности любовью. <em>${capitalize(moonAdvice)}.</em>`,
+    hermit: `Сегодня <strong>побудьте наедине с собой</strong>. ${capitalize(astro.planet.advice)}, и слушайте внутренний свет. <em>${capitalize(moonAdvice)}.</em>`,
+    wheel: `Сегодня <strong>примите перемены с благодарностью</strong>. ${capitalize(astro.planet.advice)}, и танцуйте с ритмом жизни. <em>${capitalize(moonAdvice)}.</em>`,
+    justice: `Сегодня <strong>будьте честны во всём</strong>. ${capitalize(astro.planet.advice)}, и доверьтесь справедливости. <em>${capitalize(moonAdvice)}.</em>`,
+    hanged: `Сегодня <strong>остановитесь и посмотрите иначе</strong>. ${capitalize(astro.planet.advice)}, и примите паузу как дар. <em>${capitalize(moonAdvice)}.</em>`,
+    death: `Сегодня <strong>отпустите то, что больше не служит вам</strong>. ${capitalize(astro.planet.advice)}, и встретьте новое с открытым сердцем. <em>${capitalize(moonAdvice)}.</em>`,
+    temperance: `Сегодня <strong>ищите баланс во всём</strong>. ${capitalize(astro.planet.advice)}, и соедините противоположности в гармонии. <em>${capitalize(moonAdvice)}.</em>`,
+    devil: `Сегодня <strong>осознайте свои привязанности</strong>. ${capitalize(astro.planet.advice)}, и помните, что ключ от цепей у вас внутри. <em>${capitalize(moonAdvice)}.</em>`,
+    tower: `Сегодня <strong>не цепляйтесь за старое</strong>. ${capitalize(astro.planet.advice)}, и позвольте ложному рухнуть. <em>${capitalize(moonAdvice)}.</em>`,
+    star: `Сегодня <strong>верьте в свою мечту</strong>. ${capitalize(astro.planet.advice)}, и сияйте надеждой. <em>${capitalize(moonAdvice)}.</em>`,
+    moon: `Сегодня <strong>доверяйте интуиции, а не страхам</strong>. ${capitalize(astro.planet.advice)}, и идите через тени к свету. <em>${capitalize(moonAdvice)}.</em>`,
+    sun: `Сегодня <strong>радуйтесь жизни во всей её полноте</strong>. ${capitalize(astro.planet.advice)}, и делитесь своим светом. <em>${capitalize(moonAdvice)}.</em>`,
+    judgement: `Сегодня <strong>услышьте зов своей души</strong>. ${capitalize(astro.planet.advice)}, и не бойтесь возродиться. <em>${capitalize(moonAdvice)}.</em>`,
+    world: `Сегодня <strong>отметьте свои достижения</strong>. ${capitalize(astro.planet.advice)}, и порадуйтесь завершённому циклу. <em>${capitalize(moonAdvice)}.</em>`,
+    wands: `Сегодня <strong>зажгите своё внутреннее пламя</strong>. ${capitalize(astro.planet.advice)}, и действуйте от души. <em>${capitalize(moonAdvice)}.</em>`,
+    cups: `Сегодня <strong>откройтесь чувствам</strong>. ${capitalize(astro.planet.advice)}, и позвольте сердцу вести вас. <em>${capitalize(moonAdvice)}.</em>`,
+    swords: `Сегодня <strong>говорите правду с любовью</strong>. ${capitalize(astro.planet.advice)}, и используйте ум во благо. <em>${capitalize(moonAdvice)}.</em>`,
+    pentacles: `Сегодня <strong>заземлитесь в реальности</strong>. ${capitalize(astro.planet.advice)}, и доведите начатое до конца. <em>${capitalize(moonAdvice)}.</em>`
+  };
+
+  return advices[cardKey] || `Сегодня <strong>будьте внимательны к посланиям дня</strong>. ${capitalize(astro.planet.advice)}. <em>${capitalize(moonAdvice)}.</em>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ИНТЕРПРЕТАЦИЯ ЛЕНОРМАН
+// ═══════════════════════════════════════════════════════
+function interpretLenormand(card, position, arena) {
+  const focus = position.focus;
+
+  const templates = {
+    self: `${card.description} В вашей внутренней сфере сейчас живёт энергия этой карты.`,
+    partner: `${card.description} Партнёр или важный человек рядом с вами окрашен этой энергией.`,
+    connection: `${card.description} Этой энергией пропитана ваша связь с другим человеком.`,
+    challenge: `${card.description} Это сейчас становится вашим испытанием и местом роста.`,
+    advice: `${card.description} Это совет вселенной, послание для вашего пути.`,
+    outcome: `${card.description} Это ждёт вас в результате, к этому ведёт путь.`,
+    past: `${card.description} В прошлом эта энергия играла важную роль в вашей жизни.`,
+    present: `${card.description} Сейчас именно эта энергия определяет вашу реальность.`,
+    hidden: `${card.description} Эта энергия скрыта от глаз, но действует исподволь.`,
+    near: `${card.description} В ближайшем будущем эта энергия проявится особенно ярко.`,
+    far: `${card.description} В дальнем будущем именно эта энергия принесёт свои плоды.`,
+    lesson: `${card.description} Душа учит вас принять эту энергию и сделать её своей.`,
+    shadow: `${card.description} Это теневая часть, которую важно осознать и принять.`,
+    gift: `${card.description} Это нежный дар, посланный вам вселенной.`,
+    calling: `${card.description} Эта энергия лежит в сердце вашего призвания.`
+  };
+
+  return templates[focus] || card.description;
+}
+
+function buildLenormandReading(cards, spread) {
+  const arena = spread.arena;
+  const positions = spread.positions;
+
+  const arenaIntros = {
+    'love': 'Карты Ленорман раскинулись перед вами, нежно шепча о тайнах сердца. Пять образов сложились в живой узор любви.',
+    'family': 'Карты Ленорман собрались вокруг вашего домашнего очага. Пять образов раскрывают, что живёт в стенах вашего дома.',
+    'destiny': 'Карты Ленорман раскинулись на полотне вашей судьбы. Пять образов сложились в путь от прошлого к будущему.',
+    'wishes': 'Карты Ленорман отвечают на ваше заветное желание. Пять образов рассказывают, сбудется ли мечта.',
+    'finance': 'Карты Ленорман раскрывают поток изобилия в вашей жизни. Пять образов говорят о вашем достатке.',
+    'spiritual': 'Карты Ленорман нежно касаются вашей души. Пять образов раскрывают её сокровенный путь.'
+  };
+
+  const positionIntros = {
+    love: ['Ваше сердце сейчас, это ', 'Сердце партнёра, это ', 'Связь между вами, это ', 'Что испытывает ваши чувства, это ', 'А вот что обещает любовь, это '],
+    family: ['Состояние вашего дома, это ', 'Близкие люди вокруг вас, это ', 'Атмосфера семьи, это ', 'Что омрачает домашний очаг, это ', 'А что несёт радость, это '],
+    destiny: ['В прошлом проявлялась ', 'В настоящем моменте живёт ', 'Скрытое от глаз, это ', 'Близкое будущее принесёт ', 'А в дальнем будущем '],
+    wishes: ['Ваше заветное желание, это ', 'Что помогает мечте сбыться, это ', 'Что может помешать, это ', 'Совет вселенной, это ', 'Ответ на вопрос сбудется ли, это '],
+    finance: ['Текущая финансовая ситуация, это ', 'Источник вашего изобилия, это ', 'Препятствие на пути, это ', 'Совет вселенной, это ', 'А исход складывается так: '],
+    spiritual: ['Где вы сейчас на пути души, это ', 'Урок, который преподносит душа, это ', 'Что мешает движению, это ', 'Дар судьбы для вас, это ', 'А ваше призвание, это ']
+  };
+
+  const connectors = ['Далее, ', 'И продолжая эту нежную нить, ', 'Затем ', 'В свою очередь ', 'И наконец, '];
+
+  let narrative = '';
+  cards.forEach((card, idx) => {
+    const interp = interpretLenormand(card, positions[idx], arena);
+    const intro = positionIntros[arena][idx];
+    const cardMark = `<span class="card-mark">${card.symbol} ${card.name}</span>`;
+
+    if (idx === 0) {
+      narrative += `${intro}<strong>${cardMark}</strong>. ${interp} `;
+    } else {
+      const conn = connectors[idx - 1];
+      narrative += `${conn}${intro.toLowerCase()}<strong>${cardMark}</strong>. ${interp} `;
+    }
+  });
+
+  // Анализ ключевых карт
+  const cardIds = cards.map(c => c.id);
+  let patternLine = '';
+  if (cardIds.includes(24)) patternLine += 'Карта <strong>Сердца</strong> в раскладе говорит о том, что любовь сейчас особенно близка вам. ';
+  if (cardIds.includes(31)) patternLine += 'Карта <strong>Солнца</strong> освещает расклад радостью и успехом. ';
+  if (cardIds.includes(33)) patternLine += 'Карта <strong>Ключа</strong> обещает разгадку и открытие важной двери. ';
+  if (cardIds.includes(8)) patternLine += 'Карта <strong>Гроба</strong> говорит о неизбежном завершении старого, что освободит место новому. ';
+
+  const conclusions = {
+    'love': {
+      base: 'Карты Ленорман нежно говорят о вашем сердце, оно живо и открыто.',
+      advice: 'Любите смело и нежно, не бойтесь чувств, они лучшая часть нашей жизни.',
+      blessing: 'Пусть ваше сердце будет благословлено настоящей, нежной любовью.'
+    },
+    'family': {
+      base: 'Ваш дом, это маленькая вселенная, наполненная вашей энергией.',
+      advice: 'Берегите тепло домашнего очага, это самое ценное, что у нас есть.',
+      blessing: 'Пусть в вашем доме всегда живёт любовь, смех и покой.'
+    },
+    'destiny': {
+      base: 'Ваша судьба, это живой узор, в котором каждая нить имеет смысл.',
+      advice: 'Доверьтесь течению жизни, она ведёт вас именно туда, где нужно быть.',
+      blessing: 'Пусть ваш путь будет освещён звёздами и наполнен смыслом.'
+    },
+    'wishes': {
+      base: 'Ваше желание, это маленькая звезда, которая ждёт своего часа сиять.',
+      advice: 'Делайте маленькие шаги к мечте каждый день, и однажды она станет вашей реальностью.',
+      blessing: 'Пусть ваше заветное желание исполнится в самое подходящее время.'
+    },
+    'finance': {
+      base: 'Поток изобилия в вашей жизни имеет свой ритм и свой характер.',
+      advice: 'Будьте благодарны за то, что есть, и открыты для того, что приходит.',
+      blessing: 'Пусть достаток приходит к вам легко, как рыба плывёт в спокойной реке.'
+    },
+    'spiritual': {
+      base: 'Ваша душа, это тонкий и прекрасный инструмент, играющий мелодию жизни.',
+      advice: 'Слушайте свою душу с нежностью, она знает путь домой.',
+      blessing: 'Пусть ваше сердце всегда находит дорогу к свету.'
+    }
+  };
+
+  const conc = conclusions[arena];
+
+  return {
+    intro: arenaIntros[arena],
+    narrative: narrative,
+    pattern: patternLine,
+    conclusion: `<strong>${conc.base}</strong> ${conc.advice} <em>${conc.blessing}</em>`
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// ИНИЦИАЛИЗАЦИЯ
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // ═══════════════════════════════════════════════════════
+  // ЮРИДИЧЕСКИЕ ОКНА
+  // ═══════════════════════════════════════════════════════
+
+  const ageGate = document.getElementById('age-gate');
+  const cookiesBanner = document.getElementById('cookies-banner');
+  const privacyModal = document.getElementById('privacy-modal');
+  const termsModal = document.getElementById('terms-modal');
+
+  // Безопасное чтение/запись localStorage с try/catch
+  function getStorage(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function setStorage(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) { /* приватный режим — игнорируем */ }
+  }
+
+  // Подтверждение возраста — показываем, если ещё не подтверждён
+  if (getStorage('selenia-age-confirmed') === 'true') {
+    ageGate.classList.add('hidden');
+  }
+
+  document.getElementById('age-confirm').addEventListener('click', () => {
+    setStorage('selenia-age-confirmed', 'true');
+    ageGate.classList.add('hidden');
+    // Показываем баннер cookies, если согласие ещё не дано
+    if (getStorage('selenia-cookies-accepted') !== 'true') {
+      setTimeout(() => cookiesBanner.classList.add('visible'), 600);
+    }
+  });
+
+  document.getElementById('age-decline').addEventListener('click', () => {
+    // Безопасный редирект на нейтральный сайт
+    window.location.href = 'https://www.google.com';
+  });
+
+  // Cookies banner — показываем, если согласие ещё не дано (и возраст подтверждён)
+  if (getStorage('selenia-age-confirmed') === 'true' && getStorage('selenia-cookies-accepted') !== 'true') {
+    setTimeout(() => cookiesBanner.classList.add('visible'), 800);
+  }
+
+  document.getElementById('cookies-accept').addEventListener('click', () => {
+    setStorage('selenia-cookies-accepted', 'true');
+    cookiesBanner.classList.remove('visible');
+  });
+
+  // Открытие политики конфиденциальности
+  function openPrivacy() {
+    privacyModal.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePrivacy() {
+    privacyModal.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('open-privacy').addEventListener('click', openPrivacy);
+  document.getElementById('footer-privacy').addEventListener('click', openPrivacy);
+  document.getElementById('close-privacy').addEventListener('click', closePrivacy);
+  privacyModal.addEventListener('click', (e) => {
+    if (e.target === privacyModal) closePrivacy();
+  });
+
+  // Открытие пользовательского соглашения
+  function openTerms() {
+    termsModal.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeTerms() {
+    termsModal.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('footer-terms').addEventListener('click', openTerms);
+  document.getElementById('close-terms').addEventListener('click', closeTerms);
+  termsModal.addEventListener('click', (e) => {
+    if (e.target === termsModal) closeTerms();
+  });
+
+  // Закрытие модалок по Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closePrivacy();
+      closeTerms();
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════
+  // ОСНОВНЫЕ ОБРАБОТЧИКИ
+  // ═══════════════════════════════════════════════════════
+
+  // Карточки выбора системы
+  document.querySelectorAll('.system-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const system = card.dataset.system;
+      selectSystem(system);
+    });
+  });
+
+  // Кнопки возврата
+  document.getElementById('back-to-systems').addEventListener('click', showSystemSelection);
+  document.getElementById('back-from-daily').addEventListener('click', showSystemSelection);
+
+  // Кнопки расклада
+  document.getElementById('reveal-btn').addEventListener('click', revealCards);
+  document.getElementById('new-reading-btn').addEventListener('click', newReading);
+  document.getElementById('back-btn').addEventListener('click', backToSelection);
+
+  // Кнопка карты дня
+  document.getElementById('reveal-daily-btn').addEventListener('click', revealDailyCard);
+});
+</script>
+</body>
+</html>
