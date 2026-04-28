@@ -6,7 +6,7 @@
 
 <!-- ═══ БЕЗОПАСНОСТЬ ═══ -->
 <!-- Content Security Policy: разрешает только проверенные источники -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';">
 <!-- Запрет встраивания сайта в iframe (защита от clickjacking) -->
 <meta http-equiv="X-Frame-Options" content="DENY">
 <!-- Запрет автоматического определения типов файлов -->
@@ -1369,6 +1369,105 @@
   body {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+  }
+
+  /* ═══════════════════════════════════════
+     ОПТИМИЗАЦИЯ ДЛЯ ANDROID И СЛАБЫХ УСТРОЙСТВ
+     ═══════════════════════════════════════ */
+
+  /* Если устройство просит уменьшить движение — отключаем анимации */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .galaxy-band, .galaxy-band-2, .galaxy-band-3,
+    .nebula-cloud-1, .nebula-cloud-2, .nebula-cloud-3,
+    .stars-tiny, .stars-small, .stars-medium, .stars-bright,
+    .shooting-star, .logo-sigil, .card-back-sigil {
+      animation: none !important;
+    }
+  }
+
+  /* Для Android и слабых устройств — упрощённый режим */
+  .low-perf .galaxy-band,
+  .low-perf .galaxy-band-2,
+  .low-perf .galaxy-band-3 {
+    filter: none !important;
+  }
+
+  .low-perf .nebula-cloud-1,
+  .low-perf .nebula-cloud-2,
+  .low-perf .nebula-cloud-3 {
+    filter: blur(20px) !important;
+    animation: none !important;
+  }
+
+  .low-perf .dust-lane,
+  .low-perf .dust-patch-1,
+  .low-perf .dust-patch-2 {
+    filter: blur(10px) !important;
+  }
+
+  .low-perf .shooting-star {
+    display: none !important;
+  }
+
+  .low-perf .stars-tiny,
+  .low-perf .stars-small,
+  .low-perf .stars-medium,
+  .low-perf .stars-bright {
+    animation: none !important;
+  }
+
+  .low-perf .universe-bg {
+    background-attachment: scroll !important;
+  }
+
+  /* Убираем backdrop-filter в режиме слабого устройства, заменяем на плотный фон */
+  .low-perf .system-card,
+  .low-perf .spread-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(8, 3, 20, 0.97) !important;
+  }
+
+  .low-perf .reading-scroll {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(10, 4, 28, 0.97) !important;
+  }
+
+  .low-perf .reading-scroll.lenormand-scroll {
+    background: rgba(35, 15, 35, 0.97) !important;
+  }
+
+  .low-perf .btn {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .low-perf .age-gate,
+  .low-perf .legal-modal {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.96) !important;
+  }
+
+  .low-perf .cookies-banner {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(3, 0, 12, 0.99) !important;
+  }
+
+  .low-perf .card {
+    transition: transform 0.5s ease !important;
+  }
+
+  /* Анимация мерцания карты-рубашки — отключаем на слабых */
+  .low-perf .card-back {
+    animation: none !important;
   }
 
   /* ═══════════════════════════════════════
@@ -3275,6 +3374,39 @@ function buildLenormandReading(cards, spread) {
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════════════
+  // ОПРЕДЕЛЕНИЕ СЛАБЫХ УСТРОЙСТВ И ANDROID
+  // ═══════════════════════════════════════════════════════
+  function detectLowPerformance() {
+    const ua = navigator.userAgent || '';
+    const isAndroid = /Android/i.test(ua);
+
+    // Проверяем количество ядер процессора (если меньше 4 — устройство слабое)
+    const lowCores = (navigator.hardwareConcurrency || 4) < 4;
+
+    // Проверяем объём памяти (если меньше 4 ГБ — устройство слабое)
+    const lowMemory = (navigator.deviceMemory || 4) < 4;
+
+    // Проверяем поддержку backdrop-filter
+    const noBackdrop = !CSS.supports('backdrop-filter', 'blur(10px)') &&
+                       !CSS.supports('-webkit-backdrop-filter', 'blur(10px)');
+
+    // Проверяем медленную сеть
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const slowConnection = conn && (conn.saveData || /2g|slow/.test(conn.effectiveType || ''));
+
+    // Включаем режим оптимизации, если:
+    // - Android (всегда, для надёжности на слабых устройствах)
+    // - Слабые характеристики
+    // - Нет поддержки backdrop-filter
+    // - Медленная сеть
+    return isAndroid || lowCores || lowMemory || noBackdrop || slowConnection;
+  }
+
+  if (detectLowPerformance()) {
+    document.documentElement.classList.add('low-perf');
+  }
+
+  // ═══════════════════════════════════════════════════════
   // ЮРИДИЧЕСКИЕ ОКНА
   // ═══════════════════════════════════════════════════════
 
@@ -3290,6 +3422,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function setStorage(key, value) {
     try { localStorage.setItem(key, value); } catch (e) { /* приватный режим — игнорируем */ }
   }
+
+  // Глобальная защита от ошибок — чтобы сайт не "зависал"
+  window.addEventListener('error', function(e) {
+    console.warn('Selenia: ошибка перехвачена', e.message);
+    // Не блокируем сайт, просто логируем
+    return true;
+  });
 
   // Подтверждение возраста — показываем, если ещё не подтверждён
   if (getStorage('selenia-age-confirmed') === 'true') {
