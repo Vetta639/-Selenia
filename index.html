@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 
 <!-- ═══ БЕЗОПАСНОСТЬ ═══ -->
-<!-- Content Security Policy: разрешает только локальные источники, никаких внешних загрузок -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';"><!-- Запрет встраивания сайта в iframe (защита от clickjacking) -->
+<!-- CSP: разрешает inline стили/скрипты (нужны для самого сайта),
+     но блокирует загрузку любых внешних ресурсов кроме шрифтов и data: URI.
+     Сделан совместимым со всеми Android-браузерами. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; script-src 'self' 'unsafe-inline' data:; style-src 'self' 'unsafe-inline' data:; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' data:; base-uri 'self'; object-src 'none';"><!-- Запрет встраивания сайта в iframe (защита от clickjacking) -->
 <meta http-equiv="X-Frame-Options" content="DENY">
 <!-- Запрет автоматического определения типов файлов -->
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -16,6 +18,9 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- Запрет доступа к камере, микрофону, геолокации и пр. -->
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+<!-- Контроль кэша: позволяет обновляться корректно -->
+<meta http-equiv="Cache-Control" content="public, max-age=3600, must-revalidate">
+<meta name="format-detection" content="telephone=no">
 
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,6 +29,8 @@
 <meta name="description" content="Selenia — космический оракул. Расклады Таро и Ленорман, карта дня с астрологическим контекстом. Послание звёзд для вашего пути.">
 <meta name="rating" content="adult">
 <title>Selenia · Космический Оракул</title>
+<!-- Версия сайта для сброса кэша: меняй при обновлениях -->
+<meta name="selenia-version" content="2.1.0-offline">
 <style>
   :root {
     --void: #000000;
@@ -2168,6 +2175,13 @@
     <span class="signature-line"></span>
   </div>
   <p class="footer-author">by Vetta Rihter</p>
+
+  <!-- Скрытая кнопка диагностики: тапнуть 5 раз по подписи чтобы открыть -->
+  <div id="debug-info" style="display:none; max-width: 600px; margin: 30px auto; padding: 20px; background: rgba(255,200,100,0.1); border: 1px solid rgba(244,217,118,0.4); border-radius: 4px; font-family: monospace; font-size: 11px; color: #f0e6ff; text-align: left; line-height: 1.6;">
+    <div style="font-weight: bold; margin-bottom: 10px; color: #f4d976;">Диагностика Selenia</div>
+    <div id="debug-content">Загрузка...</div>
+    <button id="reset-storage" style="margin-top: 12px; padding: 8px 16px; background: rgba(244,217,118,0.2); border: 1px solid rgba(244,217,118,0.6); color: #f4d976; cursor: pointer; font-family: inherit;">Сбросить настройки</button>
+  </div>
 </footer>
 
 <script>
@@ -2743,38 +2757,135 @@ function interpretMinor(card, position, arena) {
   // Удобные сокращения с правильными падежами
   const meaning = card.meaning;            // полное значение карты, готовое предложение
   const essence = card.essenceShort;       // короткая суть для подстановки в им. падеж
-  const sphereNom = card.sphereNom;        // им. падеж — «чувства, отношения и интуиция»
-  const sphereGen = card.sphereGen;        // род. падеж — «чувств, отношений и интуиции»
-  const sphereAcc = card.sphereAcc;        // вин. падеж — «чувства, отношения и интуицию»
-  const sphereIns = card.sphereIns;        // тв. падеж — «чувствами, отношениями и интуицией»
-  const elementGen = card.elementGen;      // «воды», «огня», «воздуха», «земли»
-  const energyShort = card.energyShort;    // «водная энергия» и т.д.
+  const sphereNom = card.sphereNom;
+  const sphereGen = card.sphereGen;
+  const sphereAcc = card.sphereAcc;
+  const sphereIns = card.sphereIns;
+  const elementGen = card.elementGen;
+  const energyShort = card.energyShort;
 
-  const templates = {
-    self: `Сейчас в вас живёт ${energyShort}, и она проявляется как ${essence}. Ваша внутренняя сфера, это ${sphereNom}.`,
-    partner: `Партнёр сейчас наполнен энергией ${elementGen}. Он проживает ${sphereAcc}, и это говорит о его глубокой связи с ${sphereIns}.`,
-    connection: `Ваш союз окрашен энергией ${elementGen}. ${meaning}`,
-    body: `Ваше тело откликается на стихию ${elementGen}. ${meaning}`,
-    soul: `Душа сейчас погружена в опыт, который связан со стихией ${elementGen}. ${meaning}`,
-    root: `В корне вашего состояния лежит то, что связано со сферой ${sphereGen}. ${meaning}`,
-    healing: `Исцеление приходит через ${sphereAcc}. ${meaning}`,
-    present: `${meaning} В вашей жизни сейчас особенно важна сфера ${sphereGen}.`,
-    past: `В прошлом вы прошли через опыт, связанный со сферой ${sphereGen}. ${meaning}`,
-    near: `В ближайшем будущем ${meaning.toLowerCase()} Сфера ${sphereGen} будет в фокусе вашего внимания.`,
-    far: `В дальнем будущем разворачивается история, связанная со сферой ${sphereGen}. ${meaning}`,
-    hidden: `Скрытая сила, действующая в вашей жизни, это ${essence}. Она работает через сферу ${sphereGen}.`,
-    challenge: `Препятствие проявляется через сферу ${sphereGen}. ${meaning}`,
-    advice: `Совет вселенной такой: воплотите ${essence} в действии. ${meaning}`,
-    action: `Действуйте, опираясь на ${sphereAcc}. ${meaning}`,
-    strength: `Ваша главная сила сейчас это ${essence}, и она проявляется через сферу ${sphereGen}.`,
-    outcome: `${meaning} Разрешение придёт через сферу ${sphereGen}.`,
-    lesson: `Урок души связан с тем, что несёт стихия ${elementGen}. ${meaning}`,
-    shadow: `Теневая часть проявляется как ${essence}. Осознать её можно, обратив внимание на сферу ${sphereGen}.`,
-    gift: `Дар вселенной для вас это ${essence}, и он раскрывается через сферу ${sphereGen}.`,
-    calling: `Ваше призвание связано со сферой ${sphereGen}. ${meaning}`
+  // Контекст арены, чтобы тексты говорили именно про её тему,
+  // а не про абстрактную «сферу»
+  const arenaCtx = {
+    love: {
+      areaNom: 'любви', areaGen: 'любви', areaIns: 'любви',
+      what: 'отношения',
+      person: 'партнёр',
+      flow: 'чувства'
+    },
+    health: {
+      areaNom: 'здоровье', areaGen: 'здоровья', areaIns: 'здоровьем',
+      what: 'самочувствие',
+      person: 'тело',
+      flow: 'жизненная сила'
+    },
+    finance: {
+      areaNom: 'финансы', areaGen: 'финансов', areaIns: 'финансами',
+      what: 'материальное положение',
+      person: 'денежный поток',
+      flow: 'изобилие'
+    },
+    future: {
+      areaNom: 'будущее', areaGen: 'будущего', areaIns: 'будущим',
+      what: 'дальнейший путь',
+      person: 'судьба',
+      flow: 'события'
+    },
+    career: {
+      areaNom: 'карьера', areaGen: 'карьеры', areaIns: 'карьерой',
+      what: 'профессиональный путь',
+      person: 'работа',
+      flow: 'дело'
+    },
+    spiritual: {
+      areaNom: 'духовный путь', areaGen: 'духовного пути', areaIns: 'духовным путём',
+      what: 'внутренний путь',
+      person: 'душа',
+      flow: 'сознание'
+    }
   };
 
-  return templates[focus] || meaning;
+  const ctx = arenaCtx[arena] || arenaCtx.spiritual;
+
+  // Подбираем шаблон в зависимости и от позиции, и от арены.
+  // Для каждой арены свой словарь, чтобы текст звучал тематически.
+  const templatesByArena = {
+    love: {
+      self: `В любви вы сейчас несёте энергию ${elementGen}, проявленную как ${essence}. ${meaning}`,
+      partner: `Ваш партнёр окрашен энергией ${elementGen}. В нём сейчас живёт ${essence}, и это влияет на то, как он проявляет чувства.`,
+      connection: `Ваш союз пропитан стихией ${elementGen}. ${meaning} Именно эта энергия определяет вашу близость сейчас.`,
+      challenge: `Препятствие в любви проявляется как ${essence}. ${meaning} В отношениях это становится точкой, требующей внимания.`,
+      outcome: `Любовь приведёт вас к опыту, в основе которого лежит ${essence}. ${meaning}`
+    },
+    health: {
+      body: `Ваше тело резонирует со стихией ${elementGen}. Сейчас оно проживает ${essence}. ${meaning}`,
+      soul: `Душа в этом опыте здоровья несёт энергию ${elementGen}. ${meaning} Через это приходит важное послание для тела.`,
+      root: `Корень вашего состояния, это ${essence}. ${meaning} Глубинная причина связана со стихией ${elementGen}.`,
+      healing: `Исцеление приходит через ${essence}. ${meaning} Стихия ${elementGen} становится вашим лекарем.`,
+      outcome: `Ваше здоровье движется к состоянию, где главным становится ${essence}. ${meaning}`
+    },
+    finance: {
+      present: `Ваше финансовое положение сейчас определяется энергией ${elementGen}. ${meaning} В деньгах сейчас особенно ярко проявляется ${essence}.`,
+      hidden: `За видимыми финансами скрывается ${essence}. ${meaning} Это та сила, которая втайне влияет на ваш денежный поток.`,
+      challenge: `Финансовое препятствие, это ${essence}. ${meaning} Именно здесь деньги встречают сопротивление.`,
+      advice: `Вселенная советует в денежных делах опираться на ${essence}. ${meaning} Это и есть ключ к финансовому росту.`,
+      outcome: `Финансы приведут вас к ситуации, где главным окажется ${essence}. ${meaning}`
+    },
+    future: {
+      past: `В прошлом вашей дороги уже жила энергия ${elementGen}, проявленная как ${essence}. ${meaning} Это был важный фундамент.`,
+      present: `В настоящем моменте судьба разворачивается через ${essence}. ${meaning} Стихия ${elementGen} окрашивает ваш сегодняшний день.`,
+      hidden: `За видимым ходом событий скрывается ${essence}. ${meaning} Эта тонкая сила незаметно ведёт вас вперёд.`,
+      near: `В ближайшем будущем вас встретит ${essence}. ${meaning} Это произойдёт скоро.`,
+      far: `Вдалеке судьба готовит вам историю, в сердце которой ${essence}. ${meaning} Это разовьётся со временем.`
+    },
+    career: {
+      present: `В работе вы сейчас живёте энергией ${elementGen}. ${meaning} Это окрашивает все ваши профессиональные дела.`,
+      strength: `Ваша главная сила в карьере, это ${essence}. ${meaning} Опирайтесь на неё в делах.`,
+      challenge: `Препятствие на профессиональном пути, это ${essence}. ${meaning} Этот опыт делает вас сильнее как мастера.`,
+      action: `Действуйте через ${essence}. ${meaning} Так раскроется ваш карьерный потенциал.`,
+      outcome: `Ваш профессиональный путь ведёт к опыту, в котором главное, это ${essence}. ${meaning}`
+    },
+    spiritual: {
+      present: `На духовном пути вы сейчас проживаете ${essence}. ${meaning} Стихия ${elementGen} окрашивает ваш внутренний опыт.`,
+      lesson: `Урок души, это ${essence}. ${meaning} Через стихию ${elementGen} приходит важное обучение.`,
+      shadow: `Теневая часть вашей души, это ${essence}. ${meaning} Осознать её, значит освободить много энергии.`,
+      gift: `Дар, посланный вам свыше, это ${essence}. ${meaning} Он раскрывается через стихию ${elementGen}.`,
+      calling: `Ваше призвание, это ${essence}. ${meaning} Стихия ${elementGen} ведёт вас к нему.`
+    }
+  };
+
+  // Если есть специфичный шаблон для этой арены и позиции, используем его
+  const arenaTemplates = templatesByArena[arena];
+  if (arenaTemplates && arenaTemplates[focus]) {
+    return arenaTemplates[focus];
+  }
+
+  // Запасной универсальный шаблон, если нет специфичного
+  const fallback = {
+    self: `В вас живёт энергия ${elementGen}, проявленная как ${essence}. ${meaning}`,
+    partner: `Рядом с вами есть ${ctx.person}, окрашенный энергией ${elementGen}. ${meaning}`,
+    connection: `Связь окрашена энергией ${elementGen}. ${meaning}`,
+    body: `Тело откликается на стихию ${elementGen}. ${meaning}`,
+    soul: `Душа погружена в опыт стихии ${elementGen}. ${meaning}`,
+    root: `В основе лежит ${essence}. ${meaning}`,
+    healing: `Исцеление приходит через ${essence}. ${meaning}`,
+    present: `${meaning} Сейчас особенно важна энергия ${elementGen}.`,
+    past: `В прошлом проявлялась энергия ${elementGen}. ${meaning}`,
+    near: `В ближайшем будущем встретите ${essence}. ${meaning}`,
+    far: `В дальнем будущем разовьётся ${essence}. ${meaning}`,
+    hidden: `Скрытая сила, это ${essence}. ${meaning}`,
+    challenge: `Препятствие, это ${essence}. ${meaning}`,
+    advice: `Совет: воплотите ${essence}. ${meaning}`,
+    action: `Действуйте через ${essence}. ${meaning}`,
+    strength: `Ваша сила, это ${essence}. ${meaning}`,
+    outcome: `${meaning} Так разрешится ситуация.`,
+    lesson: `Урок души, это ${essence}. ${meaning}`,
+    shadow: `Тень проявляется как ${essence}. ${meaning}`,
+    gift: `Дар вселенной, это ${essence}. ${meaning}`,
+    calling: `Призвание ведёт через ${essence}. ${meaning}`
+  };
+
+  return fallback[focus] || meaning;
 }
 
 function interpretCard(card, position, arena) {
@@ -3719,6 +3830,60 @@ function getDailyAdvice(card, astro) {
 function interpretLenormand(card, position, arena) {
   const focus = position.focus;
 
+  // Специфичные шаблоны для каждого расклада Ленорман,
+  // чтобы тексты говорили именно про любовь / семью / желание / финансы / душу
+  const arenaTemplates = {
+    love: {
+      self: `${card.description} Так звучит ваше сердце в любви прямо сейчас.`,
+      partner: `${card.description} Именно такое сердце у вашего партнёра, и это влияет на ваш союз.`,
+      connection: `${card.description} Этой нитью соединены ваши сердца.`,
+      challenge: `${card.description} В любви это становится вашим испытанием, тем, что хочет быть прожитым.`,
+      outcome: `${card.description} К этой любви ведёт ваш путь, такое чувство ждёт вас.`
+    },
+    family: {
+      self: `${card.description} В таком состоянии сейчас находится ваш дом.`,
+      partner: `${card.description} Это состояние ваших близких, тех, с кем вы делите кров.`,
+      connection: `${card.description} Такая атмосфера живёт в вашей семье сейчас.`,
+      challenge: `${card.description} Это омрачает домашний очаг, требует внимания и заботы.`,
+      outcome: `${card.description} Это несёт радость в ваш дом, такое тепло ждёт вас впереди.`
+    },
+    destiny: {
+      past: `${card.description} В прошлом ваша судьба проявлялась именно через это.`,
+      present: `${card.description} В настоящем моменте ваша жизнь определяется этой силой.`,
+      hidden: `${card.description} Эта тайная сила незримо ведёт вас по пути судьбы.`,
+      near: `${card.description} В ближайшем будущем эта энергия станет частью вашей жизни.`,
+      far: `${card.description} В дальнем будущем эта сила принесёт глубокие плоды.`
+    },
+    wishes: {
+      self: `${card.description} Такова природа вашего заветного желания.`,
+      partner: `${card.description} Это помогает вашей мечте сбываться, поддерживает её.`,
+      challenge: `${card.description} Это может помешать, требует внимательности и обхода.`,
+      advice: `${card.description} Вселенная советует учитывать именно это на пути к мечте.`,
+      outcome: `${card.description} Так ответит вселенная на ваше желание, к этому ведёт путь.`
+    },
+    finance: {
+      present: `${card.description} Так выглядит ваше материальное положение прямо сейчас.`,
+      partner: `${card.description} Это ваш источник изобилия, отсюда приходит достаток.`,
+      challenge: `${card.description} На пути к достатку это становится препятствием.`,
+      advice: `${card.description} Вселенная советует учитывать это в денежных делах.`,
+      outcome: `${card.description} К такому материальному состоянию ведёт ваш путь.`
+    },
+    spiritual: {
+      present: `${card.description} На духовном пути вы сейчас находитесь именно здесь.`,
+      lesson: `${card.description} Душа учит вас именно этому уроку.`,
+      shadow: `${card.description} Это теневая сторона души, которую важно осознать с любовью.`,
+      gift: `${card.description} Это нежный дар судьбы для вашей души.`,
+      calling: `${card.description} В этом, в самом сердце вашего призвания.`
+    }
+  };
+
+  // Если есть специфичный шаблон, используем его
+  const specific = arenaTemplates[arena];
+  if (specific && specific[focus]) {
+    return specific[focus];
+  }
+
+  // Запасной универсальный вариант
   const templates = {
     self: `${card.description} В вашей внутренней сфере сейчас живёт энергия этой карты.`,
     partner: `${card.description} Партнёр или важный человек рядом с вами окрашен этой энергией.`,
@@ -4090,6 +4255,85 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateCosmicBar, 1000);
   } catch (e) {
     console.warn('Cosmic bar error:', e);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // ДИАГНОСТИКА — 5 тапов по подписи "by Vetta Rihter"
+  // открывают информационную панель для отладки
+  // ═══════════════════════════════════════════════════════
+  try {
+    const authorSign = document.querySelector('.footer-author');
+    const debugInfo = document.getElementById('debug-info');
+    const debugContent = document.getElementById('debug-content');
+    const resetBtn = document.getElementById('reset-storage');
+
+    if (authorSign && debugInfo && debugContent) {
+      let tapCount = 0;
+      let tapTimer = null;
+
+      authorSign.style.cursor = 'pointer';
+      authorSign.addEventListener('click', function() {
+        tapCount++;
+        clearTimeout(tapTimer);
+        tapTimer = setTimeout(function() { tapCount = 0; }, 2000);
+
+        if (tapCount >= 5) {
+          tapCount = 0;
+          debugInfo.style.display = 'block';
+
+          // Собираем диагностическую информацию
+          let info = '';
+          info += '<b>Версия:</b> 2.1.0-offline<br>';
+          info += '<b>Браузер:</b> ' + navigator.userAgent + '<br>';
+          info += '<b>Язык:</b> ' + navigator.language + '<br>';
+          info += '<b>Размер экрана:</b> ' + window.innerWidth + 'x' + window.innerHeight + '<br>';
+          info += '<b>Соединение:</b> ' + (navigator.onLine ? 'онлайн' : 'офлайн') + '<br>';
+          info += '<b>Cookies включены:</b> ' + (navigator.cookieEnabled ? 'да' : 'нет') + '<br>';
+
+          try {
+            const test = 'test-' + Date.now();
+            localStorage.setItem(test, '1');
+            localStorage.removeItem(test);
+            info += '<b>localStorage:</b> работает<br>';
+          } catch (e) {
+            info += '<b>localStorage:</b> НЕ работает (' + e.message + ')<br>';
+          }
+
+          try {
+            info += '<b>Возраст подтверждён:</b> ' + (localStorage.getItem('selenia-age-confirmed') || 'нет') + '<br>';
+            info += '<b>Cookies приняты:</b> ' + (localStorage.getItem('selenia-cookies-accepted') || 'нет') + '<br>';
+          } catch (e) {}
+
+          // Тестируем астрономию
+          try {
+            const jd = ASTRO.julianDay(new Date());
+            const sunLon = ASTRO.sunLongitude(jd);
+            const sign = ASTRO.longitudeToZodiac(sunLon);
+            info += '<b>Астрономия:</b> работает (Солнце в ' + sign.name + ')<br>';
+          } catch (e) {
+            info += '<b>Астрономия:</b> ОШИБКА (' + e.message + ')<br>';
+          }
+
+          debugContent.innerHTML = info;
+          debugInfo.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          try {
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('Настройки сброшены. Сейчас страница перезагрузится.');
+            window.location.reload(true);
+          } catch (e) {
+            alert('Не удалось сбросить настройки: ' + e.message);
+          }
+        });
+      }
+    }
+  } catch (e) {
+    console.warn('Debug setup error:', e);
   }
 
   // Карточки выбора системы
